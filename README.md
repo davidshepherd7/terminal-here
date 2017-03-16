@@ -1,5 +1,15 @@
 # Terminal Here
 
+[![travis][travis-badge]][travis-link] <!-- [![melpa][melpa-badge]][melpa-link] --> <!-- [![melpa stable badge][melpa-stable-badge]][melpa-stable-link] -->
+
+[travis-link]: https://travis-ci.org/davidshepherd7/terminal-here
+[travis-badge]: https://travis-ci.org/davidshepherd7/terminal-here.svg?branch=master
+[melpa-link]: http://melpa.org/#/terminal-here
+[melpa-badge]: http://melpa.org/packages/terminal-here-badge.svg
+[melpa-stable-link]: https://stable.melpa.org/#/terminal-here
+[melpa-stable-badge]: https://stable.melpa.org/packages/terminal-here-badge.svg
+
+
 An Emacs package to help open external terminal emulators in the directory of the current buffer.
 
 ## Usage
