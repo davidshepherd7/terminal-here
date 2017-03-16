@@ -64,11 +64,11 @@ changed it by running `cd'."
 
 
 (defun terminal-here-project-launch ()
-  (interactive)
   "Launch a terminal in the current project root.
 
 If projectile is installed the projectile root will be used,
   Otherwise `vc-root-dir' will be used."
+  (interactive)
   (terminal-here-launch-in-directory (if (functionp 'projectile-project-root)
                             (projectile-project-root)
                           (vc-root-dir))))

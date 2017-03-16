@@ -10,7 +10,10 @@
 [melpa-stable-badge]: https://stable.melpa.org/packages/terminal-here-badge.svg
 
 
-An Emacs package to help open external terminal emulators in the directory of the current buffer.
+An Emacs package to open an *external* terminal emulator in directories associated with the current buffer.
+
+Currently OSX and Windows support is based on what [atom-open-terminal-here](https://github.com/blueimp/atom-open-terminal-here/blob/master/index.coffee#L46) does. I don't have access to emacs running on either operating system, so please let me know if it works or not.
+
 
 ## Usage
 
@@ -26,6 +29,7 @@ Recommended keybindings:
 ```
 (require 'terminal-here)
 (global-set-key (kbd "C-<f5>") #'terminal-here-launch)
+(global-set-key (kbd "C-<f6>") #'terminal-here-project-launch)
 ```
 
 but pick anything you like really.
@@ -41,14 +45,3 @@ terminal emulators, YMMV.
 A couple of
 [places on](http://emacs.stackexchange.com/questions/7650/how-to-open-a-external-terminal-from-emacs)
 [the internet](http://ergoemacs.org/emacs/emacs_dired_open_file_in_ext_apps.html) have instructions for running specific terminals from Emacs, but they are not as portable as they could be.
-
-
-## Ramblings
-
-This package is actually pretty trivial, but I figure it's useful for people who
-are (very) new to emacs to be able to do this by simply installing a package. I
-found myself wanting to do something similar in atom but I didn't have time to
-figure out how to write the (probably trivial) required coffeescript. So I was
-very happy to find that someone had made a package for it.
-
-Also integration with projectile or other project packages might be of some use.
