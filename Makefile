@@ -10,6 +10,9 @@ build :
 clean :
 	@rm -f *.elc
 
+test: build
+	${CASK} exec ert-runner
+
 install:
 	${CASK} install
 

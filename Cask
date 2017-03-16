@@ -6,4 +6,11 @@
 ;; single file package).
 (package-file "terminal-here.el")
 
-(source melpa-stable)
+(source gnu)
+
+(development
+ (depends-on "ert-runner")
+ (depends-on "el-mock")
+
+ ;; For testing defcustom types
+ (depends-on "validate"))
