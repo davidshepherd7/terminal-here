@@ -19,11 +19,16 @@ it. Hopefully it will be soon.
 
 <!-- `M-x package-install terminal-here` -->
 
-Run TODO to start a terminal in the current directory.
+Run `terminal-here-launch` to start a terminal in the current directory.
 
 Recommended keybindings:
 
-TODO
+```
+(require 'terminal-here)
+(global-set-key (kbd "C-<f5>") #'terminal-here-launch)
+```
+
+but pick anything you like really.
 
 
 ## Alternatives
