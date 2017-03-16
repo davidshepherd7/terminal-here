@@ -12,6 +12,7 @@
 (development
  (depends-on "ert-runner")
  (depends-on "el-mock")
+ (depends-on "package-lint")
 
  ;; For testing defcustom types
  (depends-on "validate"))

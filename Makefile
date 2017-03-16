@@ -1,7 +1,10 @@
 EMACS=emacs
 CASK ?= cask
 
-build :
+package-lint:
+	cask exec $(EMACS) -Q --batch -l "package-lint.el" -f "package-lint-batch-and-exit" terminal-here.el
+
+build : package-lint
 	cask exec $(EMACS) -Q --batch --eval             \
 	    "(progn                                \
 	      (setq byte-compile-error-on-warn t)  \
