@@ -21,6 +21,8 @@
       (custom-reevaluate-setting 'terminal-here-terminal-command)
       (terminal-here-launch-in-directory "adir"))))
 
+
+
 (ert-deftest custom-terminal-command-as-list ()
   (with-mock
     (mock (start-process "1" * "1" "2" "3"))
@@ -38,3 +40,18 @@
     (should-error
      (validate-setq terminal-here-terminal-command "astring")
      :type 'user-error)))
+
+
+
+(ert-deftest projectile-root ()
+  (with-mock
+    (mock (projectile-project-root) => "project-root")
+    (mock (terminal-here-launch-in-directory "project-root"))
+    (terminal-here-project-launch)))
+
+(ert-deftest non-projectile-project-root ()
+  (with-mock
+    (should (not (boundp 'projectile-project-root)))
+    (mock (vc-root-dir) => "vc-root")
+    (mock (terminal-here-launch-in-directory "vc-root"))
+    (terminal-here-project-launch)))
