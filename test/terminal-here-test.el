@@ -55,3 +55,11 @@
     (mock (vc-root-dir) => "vc-root")
     (mock (terminal-here-launch-in-directory "vc-root"))
     (terminal-here-project-launch)))
+
+(ert-deftest no-root-found ()
+  (with-mock
+    (mock (projectile-project-root) => nil)
+    (mock (vc-root-dir) => nil)
+    (should-error
+     (terminal-here-project-launch)
+     :type 'user-error)))

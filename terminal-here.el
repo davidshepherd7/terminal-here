@@ -69,9 +69,10 @@ changed it by running `cd'."
 If projectile is installed the projectile root will be used,
   Otherwise `vc-root-dir' will be used."
   (interactive)
-  (terminal-here-launch-in-directory (if (functionp 'projectile-project-root)
-                            (projectile-project-root)
-                          (vc-root-dir))))
+  (terminal-here-launch-in-directory (cond
+                         ((and (functionp 'projectile-project-root) (projectile-project-root)))
+                         ((and (functionp 'vc-root-dir) (vc-root-dir)))
+                         (t (signal 'user-error "Failed to detect project root, if you are in a version-controlled project try installing projectile or upgrading to emacs 25")))))
 
 
 
