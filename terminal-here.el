@@ -54,6 +54,7 @@ function taking a directory and returning such a list."
          (default-directory dir))
     (apply #'start-process process-name nil term-command)))
 
+;;;###autoload
 (defun terminal-here-launch ()
   "Launch a terminal in the current working directory.
 
@@ -62,7 +63,7 @@ changed it by running `cd'."
   (interactive)
   (terminal-here-launch-in-directory default-directory))
 
-
+;;;###autoload
 (defun terminal-here-project-launch ()
   "Launch a terminal in the current project root.
 
