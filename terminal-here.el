@@ -11,8 +11,8 @@
 
 ;;; Commentary:
 
-;; An Emacs package to help open external terminal emulators in the directory of
-;; the current buffer. See the readme.md file for more details.
+;; Provides commands to help open external terminal emulators in the
+;; directory of the current buffer.
 
 
 ;;; Code:
