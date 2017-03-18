@@ -4,7 +4,7 @@
 
 ;; Author: David Shepherd <davidshepherd7@gmail.com>
 ;; Version: 0.1
-;; Package-Requires: ((emacs "24"))
+;; Package-Requires: ((emacs "24") (cl-lib "0.5"))
 ;; Keywords: tools, frames
 ;; URL: https://github.com/davidshepherd7/terminal-here
 
@@ -17,6 +17,7 @@
 
 ;;; Code:
 
+(require 'cl-lib)
 
 
 (defgroup terminal-here nil
@@ -47,6 +48,18 @@ function taking a directory and returning such a list."
   :type '(choice (repeat string)
                  (function)))
 
+(defcustom terminal-here-project-root-function
+  (cl-find-if 'fboundp '(projectile-project-root vc-root-dir))
+  "Function called to find the current project root directory.
+
+Good options include `projectile-project-root', which requires
+you install the `projectile' package, or `vc-root-dir' which is
+available in Emacs >= 25.1.
+
+The function should return nil or signal an error if the current
+buffer is not in a project."
+  :group 'terminal-here
+  :type 'function)
 
 
 
@@ -75,10 +88,12 @@ changed it by running `cd'."
 If projectile is installed the projectile root will be used,
   Otherwise `vc-root-dir' will be used."
   (interactive)
-  (terminal-here-launch-in-directory (cond
-                         ((and (functionp 'projectile-project-root) (projectile-project-root)))
-                         ((and (functionp 'vc-root-dir) (vc-root-dir)))
-                         (t (signal 'user-error "Failed to detect project root, if you are in a version-controlled project try installing projectile or upgrading to emacs 25")))))
+  (when (not terminal-here-project-root-function)
+    (signal 'user-error "No `terminal-here-project-root-function' is set."))
+  (let ((root (funcall terminal-here-project-root-function)))
+    (when (not root)
+      (signal 'user-error "Not in any project according to `terminal-here-project-root-function'"))
+    (terminal-here-launch-in-directory root)))
 
 
 

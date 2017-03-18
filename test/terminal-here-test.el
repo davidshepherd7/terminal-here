@@ -43,23 +43,19 @@
 
 
 
-(ert-deftest projectile-root ()
-  (with-mock
-    (mock (projectile-project-root) => "project-root")
-    (mock (terminal-here-launch-in-directory "project-root"))
-    (terminal-here-project-launch)))
+(ert-deftest no-project-root-function ()
+  ;; Can't use validate setq here because you aren't allowed to set this to nil
+  ;; by hand.
+  (setq terminal-here-project-root-function nil)
+  (should-error (terminal-here-project-launch) :type 'user-error))
 
-(ert-deftest non-projectile-project-root ()
-  (with-mock
-    (should (not (boundp 'projectile-project-root)))
-    (mock (vc-root-dir) => "vc-root")
-    (mock (terminal-here-launch-in-directory "vc-root"))
-    (terminal-here-project-launch)))
+(ert-deftest with-project-root-function ()
+  (let ((project-root-finder (lambda () "" "vc-root")))
+    (validate-setq terminal-here-project-root-function project-root-finder)
+    (with-mock
+      (mock (terminal-here-launch-in-directory "vc-root"))
+      (terminal-here-project-launch))))
 
-(ert-deftest no-root-found ()
-  (with-mock
-    (mock (projectile-project-root) => nil)
-    (mock (vc-root-dir) => nil)
-    (should-error
-     (terminal-here-project-launch)
-     :type 'user-error)))
+(ert-deftest project-root-finds-nothing ()
+  (validate-setq terminal-here-project-root-function (lambda () nil))
+  (should-error (terminal-here-project-launch :type 'user-error)))
