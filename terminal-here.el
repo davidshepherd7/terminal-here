@@ -19,21 +19,26 @@
 
 
 
-(defun terminal-here--default-terminal-command ()
-  "Pick a good default command to use."
+(defgroup terminal-here nil
+  "Open external terminal emulators in the current buffer's directory."
+  :group 'external
+  :prefix "terminal-here-")
+
+(defun terminal-here-default-terminal-command (dir)
+  "Pick a good default command to use for DIR."
   (cond
    ((eq system-type 'darwin)
-    (lambda (dir) (list "open" "-a" "Terminal.app" dir)))
+    (list "open" "-a" "Terminal.app" dir))
 
-   ((or (eq system-type 'windows-nt) (eq system-type 'ms-dos) (eq system-type 'cygwin))
-    (lambda (dir) (list "start" "/D" dir "cmd")))
+   ((memq system-type '(windows-nt ms-dos cygwin))
+    (list "start" "/D" dir "cmd"))
 
    ;; Probably X11!
    (t '("x-terminal-emulator"))))
 
 
 (defcustom terminal-here-terminal-command
-  (terminal-here--default-terminal-command)
+  #'terminal-here-default-terminal-command
   "The command used to start a terminal.
 
 Either a list of strings: (terminal-binary arg1 arg2 ...); or a
