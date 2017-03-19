@@ -4,36 +4,42 @@
 
 ;; Author: David Shepherd <davidshepherd7@gmail.com>
 ;; Version: 0.1
-;; Package-Requires: ((emacs "24"))
+;; Package-Requires: ((emacs "24") (cl-lib "0.5"))
 ;; Keywords: tools, frames
 ;; URL: https://github.com/davidshepherd7/terminal-here
 
 
 ;;; Commentary:
 
-;; An Emacs package to help open external terminal emulators in the directory of
-;; the current buffer. See the readme.md file for more details.
+;; Provides commands to help open external terminal emulators in the
+;; directory of the current buffer.
 
 
 ;;; Code:
 
+(require 'cl-lib)
 
 
-(defun terminal-here--default-terminal-command ()
-  "Pick a good default command to use."
+(defgroup terminal-here nil
+  "Open external terminal emulators in the current buffer's directory."
+  :group 'external
+  :prefix "terminal-here-")
+
+(defun terminal-here-default-terminal-command (dir)
+  "Pick a good default command to use for DIR."
   (cond
    ((eq system-type 'darwin)
-    (lambda (dir) (list "open" "-a" "Terminal.app" dir)))
+    (list "open" "-a" "Terminal.app" dir))
 
-   ((or (eq system-type 'windows-nt) (eq system-type 'ms-dos) (eq system-type 'cygwin))
-    (lambda (dir) (list "start" "/D" dir "cmd")))
+   ((memq system-type '(windows-nt ms-dos cygwin))
+    (list "start" "/D" dir "cmd"))
 
    ;; Probably X11!
    (t '("x-terminal-emulator"))))
 
 
 (defcustom terminal-here-terminal-command
-  (terminal-here--default-terminal-command)
+  #'terminal-here-default-terminal-command
   "The command used to start a terminal.
 
 Either a list of strings: (terminal-binary arg1 arg2 ...); or a
@@ -42,6 +48,14 @@ function taking a directory and returning such a list."
   :type '(choice (repeat string)
                  (function)))
 
+(defcustom terminal-here-project-root-function
+  (cl-find-if 'fboundp '(projectile-project-root vc-root-dir))
+  "Function called to find the current project root directory.
+Good options include `projectile-project-root', which requires
+you install the `projectile' package, or `vc-root-dir', which is
+available in Emacs >= 25.1."
+  :group 'terminal-here
+  :type 'function)
 
 
 
@@ -70,10 +84,10 @@ changed it by running `cd'."
 If projectile is installed the projectile root will be used,
   Otherwise `vc-root-dir' will be used."
   (interactive)
-  (terminal-here-launch-in-directory (cond
-                         ((and (functionp 'projectile-project-root) (projectile-project-root)))
-                         ((and (functionp 'vc-root-dir) (vc-root-dir)))
-                         (t (signal 'user-error "Failed to detect project root, if you are in a version-controlled project try installing projectile or upgrading to emacs 25")))))
+  (terminal-here-launch-in-directory
+   (if terminal-here-project-root-function
+       (funcall terminal-here-project-root-function)
+     (signal 'user-error "No `terminal-here-project-root-function' is set."))))
 
 
 
