@@ -12,8 +12,6 @@
 
 An Emacs package to open an *external* terminal emulator in directories associated with the current buffer.
 
-Currently OSX and Windows support is based on what [atom-open-terminal-here](https://github.com/blueimp/atom-open-terminal-here/blob/master/index.coffee#L46) does. I don't have access to emacs running on either operating system, so please let me know if it works or not.
-
 
 ## Usage
 
@@ -32,8 +30,27 @@ Recommended keybindings:
 (global-set-key (kbd "C-<f6>") #'terminal-here-project-launch)
 ```
 
-but pick anything you like really.
 
+## Platforms
+
+Terminal-here has out-of-the-box support for some platforms, but will work anywhere with some customisation.
+
+Out-of-the-box support tested on:
+
+* Ubuntu 16.04 (but should work identically on any Debian-based system)
+* Windows 10
+
+Should be supported out-of-the-box, but currently untested:
+
+* Older versions of Windows
+* OSX (support is based on what [atom-open-terminal-here](https://github.com/blueimp/atom-open-terminal-here/blob/master/index.coffee#L46) does)
+
+Currently unsupported out-of-the-box:
+
+* Non-Debian-based UNIXes, because I haven't seen a standard
+
+If you have problems just set `terminal-here-terminal-command` to a command line (a list of 
+strings like `'("foo-term" "arg1" "arg2")` which launches your preferred terminal.
 
 ## Alternatives
 
