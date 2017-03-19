@@ -31,6 +31,7 @@
    ((eq system-type 'darwin)
     (list "open" "-a" "Terminal.app" dir))
 
+    ;; From http://stackoverflow.com/a/13509208/874671
    ((memq system-type '(windows-nt ms-dos cygwin))
     (list "cmd.exe" "/C" "start" "cmd.exe"))
 
