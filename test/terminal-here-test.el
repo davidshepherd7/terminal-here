@@ -16,7 +16,7 @@
 
 (ert-deftest windows-default-command ()
   (with-mock
-    (mock (start-process "start" * "start" "/D" "adir" "cmd"))
+    (mock (start-process "cmd.exe" *  "cmd.exe" "/C" "start" "cmd.exe"))
     (let ((system-type 'windows-nt))
       (custom-reevaluate-setting 'terminal-here-terminal-command)
       (terminal-here-launch-in-directory "adir"))))
