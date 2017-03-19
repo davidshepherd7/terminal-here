@@ -47,10 +47,11 @@ Should be supported out-of-the-box, but currently untested:
 
 Currently unsupported out-of-the-box:
 
-* Non-Debian-based UNIXes, because I haven't seen a standard
+* Non-Debian-based UNIXes, because I haven't seen a standard way to open the user's preferred terminal
 
 If you have problems just set `terminal-here-terminal-command` to a command line (a list of 
-strings like `'("foo-term" "arg1" "arg2")` which launches your preferred terminal.
+strings like `'("foo-term" "arg1" "arg2")`) which launches your preferred terminal.
+
 
 ## Alternatives
 
