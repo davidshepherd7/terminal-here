@@ -32,7 +32,7 @@
     (list "open" "-a" "Terminal.app" dir))
 
    ((memq system-type '(windows-nt ms-dos cygwin))
-    (list "start" "/D" dir "cmd"))
+    (list "cmd.exe" "/C" "start" "cmd.exe"))
 
    ;; Probably X11!
    (t '("x-terminal-emulator"))))
