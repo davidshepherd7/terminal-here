@@ -1,6 +1,6 @@
 ;;; terminal-here.el --- Run an external terminal in current directory -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2015 Free Software Foundation, Inc.
+;; Copyright © 2017 David Shepherd
 
 ;; Author: David Shepherd <davidshepherd7@gmail.com>
 ;; Version: 0.1
