@@ -70,8 +70,15 @@ buffer is not in a project."
                            (funcall terminal-here-terminal-command dir)
                          terminal-here-terminal-command))
          (process-name (car term-command))
-         (default-directory dir))
-    (apply #'start-process process-name nil term-command)))
+         (default-directory dir)
+         (proc (apply #'start-process process-name nil term-command)))
+    (set-process-sentinel
+     proc
+     (lambda (proc _)
+       (when (and (eq (process-status proc) 'exit) (/= (process-exit-status proc) 0))
+         (message "Error: in terminal here, command `%s` exited with error code %d"
+                  (mapconcat #'identity term-command " ")
+                  (process-exit-status proc)))))))
 
 ;;;###autoload
 (defun terminal-here-launch ()
