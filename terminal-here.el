@@ -31,7 +31,7 @@
    ((eq system-type 'darwin)
     (list "open" "-a" "Terminal.app" dir))
 
-    ;; From http://stackoverflow.com/a/13509208/874671
+   ;; From http://stackoverflow.com/a/13509208/874671
    ((memq system-type '(windows-nt ms-dos cygwin))
     (list "cmd.exe" "/C" "start" "cmd.exe"))
 
@@ -78,7 +78,9 @@ buffer is not in a project."
        (when (and (eq (process-status proc) 'exit) (/= (process-exit-status proc) 0))
          (message "Error: in terminal here, command `%s` exited with error code %d"
                   (mapconcat #'identity term-command " ")
-                  (process-exit-status proc)))))))
+                  (process-exit-status proc)))))
+    ;; Don't close when emacs closes, seems to only be necessary on Windows.
+    (set-process-query-on-exit-flag proc nil)))
 
 ;;;###autoload
 (defun terminal-here-launch ()
