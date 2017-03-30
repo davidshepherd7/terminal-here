@@ -22,6 +22,11 @@ it. Hopefully it will be soon.
 
 Run `terminal-here-launch` to start a terminal in the current directory.
 
+If the default command doesn't launch your preferred terminal you can set 
+`terminal-here-terminal-command` to either list containing the command and
+arguments (e.g. `(list "my-terminal" "--foo")`)
+or a function which takes a directory and returns such a list.
+
 Recommended keybindings:
 
 ```
@@ -45,12 +50,11 @@ Should be supported out-of-the-box, but currently untested:
 * Older versions of Windows
 * OSX (support is based on what [atom-open-terminal-here](https://github.com/blueimp/atom-open-terminal-here/blob/master/index.coffee#L46) does)
 
-Currently unsupported out-of-the-box:
+Requires setting `terminal-here-terminal-command` before use:
 
 * Non-Debian-based UNIXes, because I haven't seen a standard way to open the user's preferred terminal
 
-If you have problems just set `terminal-here-terminal-command` to a command line (a list of 
-strings like `'("foo-term" "arg1" "arg2")`) which launches your preferred terminal.
+If you have problems just set `terminal-here-terminal-command` as described above.
 
 
 ## Alternatives
