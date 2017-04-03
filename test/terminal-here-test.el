@@ -9,6 +9,11 @@
 
 
 
+(ert-deftest terminal-here-launch-alias ()
+  (with-terminal-here-mocks
+   (mock (terminal-here-launch-in-directory *))
+   (terminal-here)))
+
 (ert-deftest linux-default-command ()
   (with-terminal-here-mocks
    (mock (start-process "x-terminal-emulator" * "x-terminal-emulator"))

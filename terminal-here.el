@@ -92,6 +92,9 @@ changed it by running `cd'."
   (terminal-here-launch-in-directory default-directory))
 
 ;;;###autoload
+(defalias 'terminal-here 'terminal-here-launch)
+
+;;;###autoload
 (defun terminal-here-project-launch ()
   "Launch a terminal in the current project root.
 
