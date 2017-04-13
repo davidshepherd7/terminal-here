@@ -1,6 +1,6 @@
 # Terminal Here
 
-[![travis][travis-badge]][travis-link] <!-- [![melpa][melpa-badge]][melpa-link] --> <!-- [![melpa stable badge][melpa-stable-badge]][melpa-stable-link] -->
+[![travis][travis-badge]][travis-link] [![melpa][melpa-badge]][melpa-link] <!-- [![melpa stable badge][melpa-stable-badge]][melpa-stable-link] -->
 
 [travis-link]: https://travis-ci.org/davidshepherd7/terminal-here
 [travis-badge]: https://travis-ci.org/davidshepherd7/terminal-here.svg?branch=master
@@ -15,15 +15,10 @@ An Emacs package to open an *external* terminal emulator in directories associat
 
 ## Usage
 
-Currently not on Melpa, so grab the elisp file, put it in your path and require
-it. Hopefully it will be soon.
-
-<!-- `M-x package-install terminal-here` -->
-
 Run `terminal-here-launch` to start a terminal in the current directory.
 
 If the default command doesn't launch your preferred terminal you can set 
-`terminal-here-terminal-command` to either list containing the command and
+`terminal-here-terminal-command` to either a list containing the command and
 arguments (e.g. `(list "my-terminal" "--foo")`)
 or a function which takes a directory and returns such a list.
 
