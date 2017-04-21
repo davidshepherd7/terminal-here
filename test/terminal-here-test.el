@@ -23,7 +23,7 @@
 
 (ert-deftest osx-default-command ()
   (with-terminal-here-mocks
-   (mock (start-process "open" * "open" "-a" "Terminal.app" "adir"))
+   (mock (start-process "open" * "open" "-a" "Terminal.app" "."))
    (let ((system-type 'darwin))
      (custom-reevaluate-setting 'terminal-here-terminal-command)
      (terminal-here-launch-in-directory "adir"))))
