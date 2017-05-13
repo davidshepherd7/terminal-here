@@ -39,11 +39,11 @@ Out-of-the-box support tested on:
 
 * Ubuntu 16.04 (but should work identically on any Debian-based system)
 * Windows 10
+* OSX
 
 Should be supported out-of-the-box, but currently untested:
 
 * Older versions of Windows
-* OSX (support is based on what [atom-open-terminal-here](https://github.com/blueimp/atom-open-terminal-here/blob/master/index.coffee#L46) does)
 
 Requires setting `terminal-here-terminal-command` before use:
 
