@@ -102,10 +102,10 @@ If projectile is installed the projectile root will be used,
   Otherwise `vc-root-dir' will be used."
   (interactive)
   (when (not terminal-here-project-root-function)
-    (signal 'user-error "No `terminal-here-project-root-function' is set."))
+    (user-error "No `terminal-here-project-root-function' is set."))
   (let ((root (funcall terminal-here-project-root-function)))
     (when (not root)
-      (signal 'user-error "Not in any project according to `terminal-here-project-root-function'"))
+      (user-error "Not in any project according to `terminal-here-project-root-function'"))
     (terminal-here-launch-in-directory root)))
 
 
