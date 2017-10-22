@@ -67,9 +67,29 @@
   (let ((project-root-finder (lambda () "" "vc-root")))
     (validate-setq terminal-here-project-root-function project-root-finder)
     (with-terminal-here-mocks
-     (mock (terminal-here-launch-in-directory "vc-root"))
+     (mock (terminal-here--do-launch "vc-root"))
      (terminal-here-project-launch))))
 
 (ert-deftest project-root-finds-nothing ()
   (validate-setq terminal-here-project-root-function (lambda () nil))
   (should-error (terminal-here-project-launch :type 'user-error)))
+
+
+
+(ert-deftest sudo-tramp ()
+  (with-terminal-here-mocks
+   (mock (terminal-here--do-launch  "/etc/emacs/"))
+   (terminal-here-launch-in-directory "/sudo:root@localhost:/etc/emacs/"))
+
+  (with-terminal-here-mocks
+   (mock (terminal-here--do-launch  "/etc/emacs/"))
+   (terminal-here-launch-in-directory "/sudo:postgres@localhost:/etc/emacs/"))
+
+  (with-terminal-here-mocks
+   (mock (terminal-here--do-launch  "/etc/emacs/"))
+   (terminal-here-launch-in-directory "/sudo:root@127.0.0.1:/etc/emacs/")))
+
+(ert-deftest other-tramp-paths-not-handled ()
+  (should-error
+   (terminal-here-launch-in-directory "/ssh:foo@bar.com:/home/foo/my-file")
+   :type 'user-error))

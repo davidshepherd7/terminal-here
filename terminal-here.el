@@ -18,6 +18,11 @@
 ;;; Code:
 
 (require 'cl-lib)
+
+;; TODO: it would be nice not to need to load all of tramp just for the file
+;; name parsing. I'm not sure if that's possible though.
+(require 'tramp)
+
 
 
 (defgroup terminal-here nil
@@ -65,7 +70,31 @@ buffer is not in a project."
 
 
 (defun terminal-here-launch-in-directory (dir)
-  "Launch a terminal in directory DIR."
+  "Launch a terminal in directory DIR.
+
+Handles tramp paths sensibly."
+  (terminal-here--do-launch (or (terminal-here-maybe-tramp-path-to-directory dir)
+                   dir)))
+
+
+(defun terminal-here-maybe-tramp-path-to-directory (dir)
+  "Extract the local part of a local tramp path.
+
+Given a tramp path returns the local part, otherwise returns nil."
+  (when (tramp-tramp-file-p dir)
+    (let ((file-name-struct (tramp-dissect-file-name dir)))
+      (cond
+       ((equal (tramp-file-name-method file-name-struct) "sudo")
+        (tramp-file-name-localname file-name-struct))
+       (t (user-error "Terminal here cannot currently handle tramp files other than sudo"))))))
+
+
+(defun terminal-here--do-launch (dir)
+  "Internal function to launch the terminal in directory DIR.
+
+For launching a terminal from emacs lisp you almost almost
+certainly want to call `terminal-here-launch-in-directory' which
+also handles tramp mappings."
   (let* ((term-command (if (functionp terminal-here-terminal-command)
                            (funcall terminal-here-terminal-command dir)
                          terminal-here-terminal-command))
@@ -81,6 +110,7 @@ buffer is not in a project."
                   (process-exit-status proc)))))
     ;; Don't close when emacs closes, seems to only be necessary on Windows.
     (set-process-query-on-exit-flag proc nil)))
+
 
 ;;;###autoload
 (defun terminal-here-launch ()
