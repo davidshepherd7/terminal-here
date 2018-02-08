@@ -89,7 +89,15 @@
    (mock (terminal-here--do-launch  "/etc/emacs/"))
    (terminal-here-launch-in-directory "/sudo:root@127.0.0.1:/etc/emacs/")))
 
-(ert-deftest other-tramp-paths-not-handled ()
-  (should-error
-   (terminal-here-launch-in-directory "/ssh:foo@bar.com:/home/foo/my-file")
-   :type 'user-error))
+
+
+(ert-deftest parse-ssh-dir ()
+  (should (equal (terminal-here--parse-ssh-dir "/ssh:buildbot:/home/buildbot/") (list "buildbot" "/home/buildbot/")))
+  (should (equal (terminal-here--parse-ssh-dir "/ssh:david@pi:/home/pi/") (list "david@pi" "/home/pi/")))
+  (should (equal (terminal-here--parse-ssh-dir "/ssh:root@192.168.0.1:/etc/hosts") (list "root@192.168.0.1" "/etc/hosts")))
+
+  (should-not (terminal-here--parse-ssh-dir "/home/buildbot/"))
+  (should-not (terminal-here--parse-ssh-dir "/ssh/foo/bar")))
+
+(ert-deftest set-command-flag ()
+  (validate-setq terminal-here-command-flag "-x"))

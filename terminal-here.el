@@ -67,7 +67,29 @@ buffer is not in a project."
   :group 'terminal-here
   :type 'function)
 
+(defcustom terminal-here-command-flag
+  "-e"
+  "The flag to tell your terminal to treat the rest of the line as a command to run
+Typically this is -e, gnome-terminal uses -x."
+  :group 'terminal-here
+  :type 'string)
+
 
+
+(defun terminal-here--parse-ssh-dir (dir)
+  (when (string-prefix-p "/ssh:" dir)
+    (cdr (split-string dir ":"))))
+
+(defun terminal-here--ssh-command (remote dir)
+  (append (terminal-here--term-command "") (list terminal-here-command-flag "ssh" "-t" remote "cd" dir "&&" "exec" "$SHELL" "-")))
+
+(defun terminal-here--term-command (dir)
+  (let ((ssh-data (terminal-here--parse-ssh-dir dir)))
+    (cond
+     (ssh-data (terminal-here--ssh-command (car ssh-data) (cadr ssh-data)))
+     (t (if (functionp terminal-here-terminal-command)
+            (funcall terminal-here-terminal-command dir)
+          terminal-here-terminal-command)))))
 
 (defun terminal-here-launch-in-directory (dir)
   "Launch a terminal in directory DIR.
@@ -95,9 +117,7 @@ Given a tramp path returns the local part, otherwise returns nil."
 For launching a terminal from emacs lisp you almost almost
 certainly want to call `terminal-here-launch-in-directory' which
 also handles tramp mappings."
-  (let* ((term-command (if (functionp terminal-here-terminal-command)
-                           (funcall terminal-here-terminal-command dir)
-                         terminal-here-terminal-command))
+  (let* ((term-command (terminal-here--term-command dir))
          (process-name (car term-command))
          (default-directory dir)
          (proc (apply #'start-process process-name nil term-command)))
