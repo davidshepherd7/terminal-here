@@ -67,7 +67,7 @@
   (let ((project-root-finder (lambda () "" "vc-root")))
     (validate-setq terminal-here-project-root-function project-root-finder)
     (with-terminal-here-mocks
-     (mock (terminal-here--do-launch "vc-root"))
+     (mock (terminal-here--run-command * "vc-root"))
      (terminal-here-project-launch))))
 
 (ert-deftest project-root-finds-nothing ()
@@ -78,18 +78,34 @@
 
 (ert-deftest sudo-tramp ()
   (with-terminal-here-mocks
-   (mock (terminal-here--do-launch  "/etc/emacs/"))
+   (mock (terminal-here--run-command * "/etc/emacs/"))
    (terminal-here-launch-in-directory "/sudo:root@localhost:/etc/emacs/"))
 
   (with-terminal-here-mocks
-   (mock (terminal-here--do-launch  "/etc/emacs/"))
+   (mock (terminal-here--run-command * "/etc/emacs/"))
    (terminal-here-launch-in-directory "/sudo:postgres@localhost:/etc/emacs/"))
 
   (with-terminal-here-mocks
-   (mock (terminal-here--do-launch  "/etc/emacs/"))
+   (mock (terminal-here--run-command *  "/etc/emacs/"))
    (terminal-here-launch-in-directory "/sudo:root@127.0.0.1:/etc/emacs/")))
 
-(ert-deftest other-tramp-paths-not-handled ()
-  (should-error
-   (terminal-here-launch-in-directory "/ssh:foo@bar.com:/home/foo/my-file")
-   :type 'user-error))
+
+
+(ert-deftest parse-ssh-dir ()
+  (should (equal (terminal-here--parse-ssh-dir "/ssh:buildbot:/home/buildbot/") (list "buildbot" "/home/buildbot/")))
+  (should (equal (terminal-here--parse-ssh-dir "/ssh:david@pi:/home/pi/") (list "david@pi" "/home/pi/")))
+  (should (equal (terminal-here--parse-ssh-dir "/ssh:root@192.168.0.1:/etc/hosts") (list "root@192.168.0.1" "/etc/hosts")))
+
+  (should-not (terminal-here--parse-ssh-dir "/home/buildbot/"))
+  (should-not (terminal-here--parse-ssh-dir "/ssh/foo/bar")))
+
+(ert-deftest ssh-tramp ()
+  (cl-letf* ((launch-command nil)
+             ((symbol-function 'terminal-here--run-command)
+              (lambda (command _dir)
+                (setq launch-command command))))
+    (validate-setq terminal-here-command-flag "-k")
+    (terminal-here-launch-in-directory "/ssh:david@pi:/home/pi/")
+    (should (equal (car launch-command) "x-terminal-emulator"))
+    (should (equal (cadr launch-command) "-k"))
+    (should (equal (caddr launch-command) "ssh"))))

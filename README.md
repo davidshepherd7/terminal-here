@@ -52,6 +52,20 @@ Requires setting `terminal-here-terminal-command` before use:
 If you have problems just set `terminal-here-terminal-command` as described above.
 
 
+## Remote directories
+
+`terminal-here` can run ssh to open terminals in remote directories for files
+opened with [tramp](https://www.gnu.org/software/tramp/#Overview). This may
+require additional setup because of inconsistencies between different terminals.
+
+If your terminal has a flag to treat the rest of the command line as the command
+to run inside the terminal, you just need to set `terminal-here-command-flag` to
+this flag. If not it may be impossible to get ssh support. Some examples are:
+
+* `xterm`, `urxvt`: `-e` (this is the default)
+* `gnome-terminal`: `-x`
+
+
 ## Alternatives
 
 There are lots of built in ways to run terminals *inside* emacs (`shell`,
