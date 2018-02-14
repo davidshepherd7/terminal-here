@@ -41,8 +41,10 @@
     (list "cmd.exe" "/C" "start" "cmd.exe"))
 
    ;; Probably X11!
-   (t '("x-terminal-emulator"))))
-
+   (t (list (cl-some (lambda (executable)
+                       (executable-find executable))
+                     '("x-terminal-emulator" "sl" "urxvt" "gnome-terminal"
+                       "konsole" "xterm"))))))
 
 (defcustom terminal-here-terminal-command
   #'terminal-here-default-terminal-command
