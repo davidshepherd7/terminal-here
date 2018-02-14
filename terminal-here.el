@@ -34,11 +34,11 @@
   "Pick a good default command to use for DIR."
   (cond
    ((eq system-type 'darwin)
-    (list "open" "-a" "Terminal.app" "."))
+    '("open" "-a" "Terminal.app" "."))
 
    ;; From http://stackoverflow.com/a/13509208/874671
    ((memq system-type '(windows-nt ms-dos cygwin))
-    (list "cmd.exe" "/C" "start" "cmd.exe"))
+    '("cmd.exe" "/C" "start" "cmd.exe"))
 
    ;; Probably X11!
    (t '("x-terminal-emulator"))))
