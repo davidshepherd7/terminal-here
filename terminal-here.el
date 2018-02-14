@@ -30,8 +30,7 @@
   :group 'external
   :prefix "terminal-here-")
 
-(defun terminal-here-default-terminal-command (_dir)
-  "Pick a good default command to use for DIR."
+(defcustom terminal-here-terminal-command
   (cond
    ((eq system-type 'darwin)
     (list "open" "-a" "Terminal.app" "."))
@@ -41,18 +40,13 @@
     (list "cmd.exe" "/C" "start" "cmd.exe"))
 
    ;; Probably X11!
-   (t '("x-terminal-emulator"))))
-
-
-(defcustom terminal-here-terminal-command
-  #'terminal-here-default-terminal-command
+   (t '("x-terminal-emulator")))
   "The command used to start a terminal.
 
 Either a list of strings: (terminal-binary arg1 arg2 ...); or a
 function taking a directory and returning such a list."
   :group 'terminal-here
-  :type '(choice (repeat string)
-                 (function)))
+  :type '(choice (repeat string)))
 
 (defcustom terminal-here-project-root-function
   (cl-find-if 'fboundp '(projectile-project-root vc-root-dir))
