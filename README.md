@@ -22,6 +22,11 @@ If the default command doesn't launch your preferred terminal you can set
 arguments (e.g. `(list "my-terminal" "--foo")`)
 or a function which takes a directory and returns such a list.
 
+If you have a terminal multiplexer `screen` or `tmux` you could start
+them with <kbd>M-x terminal-here-launch-multiplexer</kbd> in current
+working directory or in a project with
+<kbd>M-x terminal-here-project-launch-multiplexer</kbd>.
+
 Recommended keybindings:
 
 ```

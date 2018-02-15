@@ -30,6 +30,12 @@
   :group 'external
   :prefix "terminal-here-")
 
+(defun terminal-here-find-executable (variants)
+  (file-name-nondirectory
+   (cl-some (lambda (executable)
+              (executable-find executable))
+            variants)))
+
 (defun terminal-here-default-terminal-command (_dir)
   "Pick a good default command to use for DIR."
   (cond
@@ -74,28 +80,75 @@ Typically this is -e, gnome-terminal uses -x."
   :group 'terminal-here
   :type 'string)
 
+(defcustom terminal-here-multiplexers
+  '("screen" "tmux")
+  "List of terminal emulators."
+  :group 'terminal-here
+  :type 'string)
+
+(defcustom terminal-here-multiplexer
+  (terminal-here-find-executable terminal-here-multiplexers)
+  "The terminal multiplexer to run inside a terminal."
+  :type 'string
+  :options '("screen" "tmux")
+  :group 'terminal-here)
+
+(defcustom terminal-here-multiplexer-new-session t
+  "If t launch a new `screen' session inside multiplexer.
+`tmux' can only attach to existing session.
+
+If f attach to a `screen' session inside multiplexer."
+  :type 'boolean
+  :group 'terminal-here)
+
+(defcustom terminal-here-multiplexer-flags nil
+  "Flags passed to multiplexer."
+  :type 'list
+  :group 'terminal-here)
+
 
+
+(defun terminal-here-multiplexer-session (dir)
+  "If new is t create a new multiplexer session called `dir'.
+
+If new is f attach to a multiplexer session called `dir'."
+  (let ((dir (file-name-nondirectory (directory-file-name dir))))
+    (cond ((string-equal terminal-here-multiplexer "screen")
+           (list (if terminal-here-multiplexer-new-session "-S" "-r") dir))
+          ((string-equal terminal-here-multiplexer "tmux")
+           (list "new-session" "-A" "-s" dir)))))
+
+(defun terminal-here-multiplexer-command (dir)
+  "Return a multiplexer command."
+  (cons terminal-here-multiplexer (terminal-here-multiplexer-session dir)))
 
 (defun terminal-here--parse-ssh-dir (dir)
   (when (string-prefix-p "/ssh:" dir)
     (cdr (split-string dir ":"))))
 
-(defun terminal-here--ssh-command (remote dir)
-  (append (terminal-here--term-command "") (list terminal-here-command-flag "ssh" "-t" remote "cd" dir "&&" "exec" "$SHELL" "-")))
+(defun terminal-here--ssh-command (remote dir &optional multiplexer)
+  `(,@(terminal-here--term-command "")
+    ,terminal-here-command-flag "ssh" "-t" ,remote "cd" ,dir "&&" "exec"
+    ,@(if multiplexer (terminal-here-multiplexer-command dir) '("$SHELL" "-"))))
 
-(defun terminal-here--term-command (dir)
+(defun terminal-here--term-command (dir &optional multiplexer)
   (let ((ssh-data (terminal-here--parse-ssh-dir dir)))
     (cond
-     (ssh-data (terminal-here--ssh-command (car ssh-data) (cadr ssh-data)))
-     (t (if (functionp terminal-here-terminal-command)
-            (funcall terminal-here-terminal-command dir)
-          terminal-here-terminal-command)))))
+     (ssh-data (terminal-here--ssh-command (car ssh-data) (cadr ssh-data)
+                                           multiplexer))
+     (t (let ((command (if (functionp terminal-here-terminal-command)
+                           (funcall terminal-here-terminal-command dir)
+                         terminal-here-terminal-command)))
+          (if multiplexer
+              `(,@command ,terminal-here-command-flag
+                          ,@(terminal-here-multiplexer-command dir))
+            command))))))
 
-(defun terminal-here-launch-in-directory (dir)
+(defun terminal-here-launch-in-directory (dir &optional multiplexer)
   "Launch a terminal in directory DIR.
 
 Handles tramp paths sensibly."
-  (let ((term-command (terminal-here--term-command dir)))
+  (let ((term-command (terminal-here--term-command dir multiplexer)))
     (terminal-here--run-command term-command
                    (or (terminal-here-maybe-tramp-path-to-directory dir) dir))))
 
@@ -128,31 +181,55 @@ Given a tramp path returns the local part, otherwise returns nil."
     ;; Don't close when emacs closes, seems to only be necessary on Windows.
     (set-process-query-on-exit-flag proc nil)))
 
+(defmacro terminal-here-not-null-symbol (symbol)
+  `(when (null ,symbol)
+     (user-error (format "No `%S' is set." ',symbol))))
+
 ;;;###autoload
-(defun terminal-here-launch ()
+(defun terminal-here-launch (&optional multiplexer)
   "Launch a terminal in the current working directory.
 
 This is the directory of the current buffer unless you have
 changed it by running `cd'."
   (interactive)
-  (terminal-here-launch-in-directory default-directory))
+  (when multiplexer (terminal-here-not-null-symbol terminal-here-multiplexer))
+  (terminal-here-launch-in-directory default-directory multiplexer))
 
 ;;;###autoload
 (defalias 'terminal-here 'terminal-here-launch)
 
 ;;;###autoload
-(defun terminal-here-project-launch ()
+(defun terminal-here-project-launch (&optional multiplexer)
   "Launch a terminal in the current project root.
 
 If projectile is installed the projectile root will be used,
   Otherwise `vc-root-dir' will be used."
   (interactive)
-  (when (not terminal-here-project-root-function)
-    (user-error "No `terminal-here-project-root-function' is set."))
+  (when (terminal-here-not-null-symbol terminal-here-project-root-function))
   (let ((root (funcall terminal-here-project-root-function)))
     (when (not root)
       (user-error "Not in any project according to `terminal-here-project-root-function'"))
-    (terminal-here-launch-in-directory root)))
+    (terminal-here-launch-in-directory root multiplexer)))
+
+;;;###autoload
+(defun terminal-here-launch-multiplexer ()
+  "Launch a terminal with `terminal-here-multiplexer' in the current
+working directory.
+
+This is the directory of the current buffer unless you have
+changed it by running `cd'."
+  (interactive)
+  (terminal-here-launch t))
+
+;;;###autoload
+(defun terminal-here-project-launch-multiplexer ()
+  "Launch a terminal with `terminal-here-multiplexer' in the current
+project root.
+
+If projectile is installed the projectile root will be used,
+  Otherwise `vc-root-dir' will be used."
+  (interactive)
+  (terminal-here-project-launch t))
 
 
 
