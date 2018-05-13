@@ -55,17 +55,17 @@ function taking a directory and returning such a list."
                  (function)))
 
 (defcustom terminal-here-project-root-function
-  (cl-find-if 'fboundp '(projectile-project-root vc-root-dir))
+  nil
   "Function called to find the current project root directory.
 
-Good options include `projectile-project-root', which requires
-you install the `projectile' package, or `vc-root-dir' which is
+If nil falls back to `projectile-project-root', (which requires
+you install the `projectile' package), or `vc-root-dir' which is
 available in Emacs >= 25.1.
 
 The function should return nil or signal an error if the current
 buffer is not in a project."
   :group 'terminal-here
-  :type 'function)
+  :type '(choice (const nil) function))
 
 (defcustom terminal-here-command-flag
   "-e"
@@ -144,12 +144,13 @@ changed it by running `cd'."
 (defun terminal-here-project-launch ()
   "Launch a terminal in the current project root.
 
-If projectile is installed the projectile root will be used,
-  Otherwise `vc-root-dir' will be used."
+Uses `terminal-here-project-root-function' to determine the project root."
   (interactive)
-  (when (not terminal-here-project-root-function)
-    (user-error "No `terminal-here-project-root-function' is set."))
-  (let ((root (funcall terminal-here-project-root-function)))
+  (let* ((real-project-root-function
+          (or terminal-here-project-root-function
+              (cl-find-if #'fboundp (list 'projectile-project-root 'vc-root-dir))
+              (user-error "No `terminal-here-project-root-function' is set and no default could be picked.")))
+         (root (funcall real-project-root-function)))
     (when (not root)
       (user-error "Not in any project according to `terminal-here-project-root-function'"))
     (terminal-here-launch-in-directory root)))

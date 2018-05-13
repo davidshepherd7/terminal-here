@@ -58,10 +58,18 @@
 
 
 (ert-deftest no-project-root-function ()
-  ;; Can't use validate setq here because you aren't allowed to set this to nil
-  ;; by hand.
-  (setq terminal-here-project-root-function nil)
-  (should-error (terminal-here-project-launch) :type 'user-error))
+  (validate-setq terminal-here-project-root-function nil)
+  (cl-letf (((symbol-function #'projectile-project-root) nil)
+            ((symbol-function #'vc-root-dir) nil))
+    (should-error (terminal-here-project-launch) :type 'user-error)))
+
+(ert-deftest default-project-root-function ()
+  (validate-setq terminal-here-project-root-function nil)
+  (cl-letf (((symbol-function #'projectile-project-root) (lambda () "" "projectile-root"))
+            ((symbol-function #'vc-root-dir) nil))
+    (with-terminal-here-mocks
+     (mock (terminal-here-launch-in-directory "projectile-root"))
+     (terminal-here-project-launch))))
 
 (ert-deftest with-project-root-function ()
   (let ((project-root-finder (lambda () "" "vc-root")))
