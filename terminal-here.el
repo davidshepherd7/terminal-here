@@ -30,6 +30,16 @@
   :group 'external
   :prefix "terminal-here-")
 
+(defconst terminal-here-known-terminal-commands
+  '("gnome-terminal"
+    "mate-terminal"
+    "xfce4-terminal"
+    "nxterm"
+    "color-xterm"
+    "rxvt"
+    "dtterm")
+  "List of Gnome/GIO terminals.")
+
 (defun terminal-here-default-terminal-command (_dir)
   "Pick a good default command to use for DIR."
   (cond
@@ -41,7 +51,12 @@
     (list "cmd.exe" "/C" "start" "cmd.exe"))
 
    ;; Probably X11!
-   (t '("x-terminal-emulator"))))
+   ((executable-find "x-terminal-emulator")
+    '("x-terminal-emulator"))
+
+   (t (if-let (terminal (cl-some #'executable-find terminal-here-known-terminal-commands))
+	  `(,terminal)
+	(user-error "No terminal found!")))))
 
 
 (defcustom terminal-here-terminal-command
