@@ -41,7 +41,9 @@
     (list "cmd.exe" "/C" "start" "cmd.exe"))
 
    ;; Probably X11!
-   (t '("x-terminal-emulator"))))
+   ((executable-find "x-terminal-emulator") '("x-terminal-emulator"))
+
+   (t (user-error  "No default terminal detected, please set `terminal-here-terminal-command'"))))
 
 
 (defcustom terminal-here-terminal-command
