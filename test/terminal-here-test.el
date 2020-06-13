@@ -73,7 +73,8 @@
      (terminal-here-project-launch))))
 
 (ert-deftest with-project-root-function ()
-  (let ((project-root-finder (lambda () "" "vc-root")))
+  (let ((project-root-finder (lambda () "" "vc-root"))
+        (terminal-here-terminal-command '("x-terminal-emulator")))
     (validate-setq terminal-here-project-root-function project-root-finder)
     (with-terminal-here-mocks
      (mock (terminal-here--run-command * "vc-root"))
