@@ -116,7 +116,7 @@
     (should (equal (terminal-here--parse-ssh-dir "/ssh:buildbot:/home/buildbot/") (list "buildbot" "/home/buildbot/")))
     (should (equal (terminal-here--parse-ssh-dir "/ssh:david@pi:/home/pi/") (list "david@pi" "/home/pi/")))
     (should (equal (terminal-here--parse-ssh-dir "/ssh:root@192.168.0.1:/etc/hosts") (list "root@192.168.0.1" "/etc/hosts")))
-
+    (should (equal (terminal-here--parse-ssh-dir "/ssh:myhost:/home/me/colon:dir") (list "myhost" "/home/me/colon:dir")))
     (should-not (terminal-here--parse-ssh-dir "/home/buildbot/"))
     (should-not (terminal-here--parse-ssh-dir "/ssh/foo/bar"))))
 
