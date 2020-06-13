@@ -86,30 +86,33 @@
 
 
 (ert-deftest sudo-tramp ()
-  (with-terminal-here-mocks
-   (mock (terminal-here--run-command * "/etc/emacs/"))
-   (terminal-here-launch-in-directory "/sudo:root@localhost:/etc/emacs/"))
+  (let ((terminal-here-terminal-command '("x-terminal-emulator")))
+    (with-terminal-here-mocks
+     (mock (terminal-here--run-command * "/etc/emacs/"))
+     (terminal-here-launch-in-directory "/sudo:root@localhost:/etc/emacs/"))
 
-  (with-terminal-here-mocks
-   (mock (terminal-here--run-command * "/etc/emacs/"))
-   (terminal-here-launch-in-directory "/sudo:postgres@localhost:/etc/emacs/"))
+    (with-terminal-here-mocks
+     (mock (terminal-here--run-command * "/etc/emacs/"))
+     (terminal-here-launch-in-directory "/sudo:postgres@localhost:/etc/emacs/"))
 
-  (with-terminal-here-mocks
-   (mock (terminal-here--run-command *  "/etc/emacs/"))
-   (terminal-here-launch-in-directory "/sudo:root@127.0.0.1:/etc/emacs/")))
+    (with-terminal-here-mocks
+     (mock (terminal-here--run-command *  "/etc/emacs/"))
+     (terminal-here-launch-in-directory "/sudo:root@127.0.0.1:/etc/emacs/"))))
 
 
 
 (ert-deftest parse-ssh-dir ()
-  (should (equal (terminal-here--parse-ssh-dir "/ssh:buildbot:/home/buildbot/") (list "buildbot" "/home/buildbot/")))
-  (should (equal (terminal-here--parse-ssh-dir "/ssh:david@pi:/home/pi/") (list "david@pi" "/home/pi/")))
-  (should (equal (terminal-here--parse-ssh-dir "/ssh:root@192.168.0.1:/etc/hosts") (list "root@192.168.0.1" "/etc/hosts")))
+  (let ((terminal-here-terminal-command '("x-terminal-emulator")))
+    (should (equal (terminal-here--parse-ssh-dir "/ssh:buildbot:/home/buildbot/") (list "buildbot" "/home/buildbot/")))
+    (should (equal (terminal-here--parse-ssh-dir "/ssh:david@pi:/home/pi/") (list "david@pi" "/home/pi/")))
+    (should (equal (terminal-here--parse-ssh-dir "/ssh:root@192.168.0.1:/etc/hosts") (list "root@192.168.0.1" "/etc/hosts")))
 
-  (should-not (terminal-here--parse-ssh-dir "/home/buildbot/"))
-  (should-not (terminal-here--parse-ssh-dir "/ssh/foo/bar")))
+    (should-not (terminal-here--parse-ssh-dir "/home/buildbot/"))
+    (should-not (terminal-here--parse-ssh-dir "/ssh/foo/bar"))))
 
 (ert-deftest ssh-tramp ()
   (cl-letf* ((launch-command nil)
+             (terminal-here-terminal-command '("x-terminal-emulator"))
              ((symbol-function 'terminal-here--run-command)
               (lambda (command _dir)
                 (setq launch-command command))))
