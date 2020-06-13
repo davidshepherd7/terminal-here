@@ -80,7 +80,8 @@ Typically this is -e, gnome-terminal uses -x."
 
 (defun terminal-here--parse-ssh-dir (dir)
   (when (string-prefix-p "/ssh:" dir)
-    (cdr (split-string dir ":"))))
+    (with-parsed-tramp-file-name dir nil
+      (list (if user (concat user "@" host) host) localname))))
 
 (defun terminal-here--ssh-command (remote dir)
   (append (terminal-here--term-command "") (list terminal-here-command-flag "ssh" "-t" remote "cd" dir "&&" "exec" "$SHELL" "-")))
