@@ -17,6 +17,7 @@
 (ert-deftest linux-default-command ()
   (with-terminal-here-mocks
    (mock (start-process "x-terminal-emulator" * "x-terminal-emulator"))
+   (stub executable-find => t)
    (let ((system-type 'gnu/linux))
      (custom-reevaluate-setting 'terminal-here-terminal-command)
      (terminal-here-launch-in-directory "adir"))))
