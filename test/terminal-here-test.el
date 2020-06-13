@@ -22,6 +22,15 @@
      (custom-reevaluate-setting 'terminal-here-terminal-command)
      (terminal-here-launch-in-directory "adir"))))
 
+(ert-deftest no-default-found ()
+  (with-terminal-here-mocks
+   (stub executable-find => nil)
+   (let ((system-type 'gnu/linux))
+     (custom-reevaluate-setting 'terminal-here-terminal-command)
+     (should-error
+      (terminal-here-launch-in-directory "adir")
+      :type 'user-error))))
+
 (ert-deftest osx-default-command ()
   (with-terminal-here-mocks
    (mock (start-process "open" * "open" "-a" "Terminal.app" "."))
