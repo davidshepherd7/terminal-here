@@ -84,7 +84,7 @@ Typically this is -e, gnome-terminal uses -x."
       (list (if user (concat user "@" host) host) localname))))
 
 (defun terminal-here--ssh-command (remote dir)
-  (append (terminal-here--term-command "") (list terminal-here-command-flag "ssh" "-t" remote "cd" dir "&&" "exec" "$SHELL" "-")))
+  (append (terminal-here--term-command "") (list terminal-here-command-flag "ssh" "-t" remote "cd" (shell-quote-argument dir) "&&" "exec" "$SHELL" "-")))
 
 (defun terminal-here--term-command (dir)
   (let ((ssh-data (terminal-here--parse-ssh-dir dir)))
