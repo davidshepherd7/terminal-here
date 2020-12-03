@@ -33,6 +33,7 @@
 (defcustom terminal-app "Terminal.app"
   "The default terminal app"
   :type 'string
+  :options '("Terminal.app" "iTerm.app")
   :group 'terminal-here)
 
 (defun terminal-here-default-terminal-command (_dir)
