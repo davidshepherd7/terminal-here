@@ -32,8 +32,9 @@
 
 (defcustom terminal-app "Terminal.app"
   "Darwin terminal app"
-  :type 'string
-  :options '("Terminal.app" "iTerm.app")
+  :type '(choice
+          (const "Terminal.app"))
+          (const "iTerm.app")
   :group 'terminal-here)
 
 (defun terminal-here-default-terminal-command (_dir)
