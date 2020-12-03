@@ -31,7 +31,7 @@
   :prefix "terminal-here-")
 
 (defcustom terminal-app "Terminal.app"
-  "The default terminal app"
+  "Darwin terminal app"
   :type 'string
   :options '("Terminal.app" "iTerm.app")
   :group 'terminal-here)
