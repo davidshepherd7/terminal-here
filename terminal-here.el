@@ -30,11 +30,16 @@
   :group 'external
   :prefix "terminal-here-")
 
+(defcustom terminal-app "Terminal.app"
+  "The default terminal app"
+  :type 'string
+  :group 'terminal-here)
+
 (defun terminal-here-default-terminal-command (_dir)
   "Pick a good default command to use for DIR."
   (cond
    ((eq system-type 'darwin)
-    (list "open" "-a" "Terminal.app" "."))
+    (list "open" "-a" terminal-app "."))
 
    ;; From http://stackoverflow.com/a/13509208/874671
    ((memq system-type '(windows-nt ms-dos cygwin))
