@@ -1,6 +1,6 @@
 # Terminal Here
 
-[![CI](https://travis-ci.org/davidshepherd7/terminal-here/workflows/CI/badge.svg)](https://github.com/davidshepherd7/terminal-here/actions)
+[![CI](https://github.com/davidshepherd7/terminal-here/workflows/CI/badge.svg)](https://github.com/davidshepherd7/terminal-here/actions)
 [![melpa][melpa-badge]][melpa-link]
 [![melpa stable badge][melpa-stable-badge]][melpa-stable-link]
 
