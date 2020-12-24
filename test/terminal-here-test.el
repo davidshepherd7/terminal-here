@@ -76,6 +76,29 @@
   (should-error (validate-setq terminal-here-terminal-command "astring") :type 'user-error)
   )
 
+(ert-deftest custom-command-flag-customization ()
+  (validate-setq terminal-here-command-flag "-k"))
+
+(ert-deftest custom-command-flag-table-lookup ()
+  (let ((terminal-here-command-flag nil)
+        (terminal-here-terminal-command 'urxvt))
+    (should (equal (terminal-here--get-command-flag) "-e"))))
+
+(ert-deftest custom-command-flag-main-variable-overrides ()
+  (let ((terminal-here-command-flag "-k")
+        (terminal-here-terminal-command 'urxvt))
+    (should (equal (terminal-here--get-command-flag) "-k"))))
+
+(ert-deftest custom-command-flag-table-lookup-missing-terminal ()
+  (let ((terminal-here-command-flag nil)
+        (terminal-here-terminal-command 'foo))
+    (should-error (terminal-here--get-command-flag) :type 'user-error)))
+
+(ert-deftest custom-command-flag-table-lookup-nothing-configured ()
+  (let ((terminal-here-command-flag nil)
+        (terminal-here-terminal-command '("foo")))
+    (should-error (terminal-here--get-command-flag) :type 'user-error)))
+
 
 
 (ert-deftest no-project-root-function ()

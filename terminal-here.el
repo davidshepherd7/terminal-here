@@ -45,9 +45,12 @@ Either:
                  (function)))
 
 (defcustom terminal-here-command-flag
-  "-e"
+  nil
   "The flag to tell your terminal to treat the rest of the line as a command to run
-Typically this is -e, gnome-terminal uses -x."
+Typically this is -e, gnome-terminal uses -x.
+
+NOTE: If `terminal-here-terminal-command' is a symbol then this variable is ignored and the flag is looked up in
+`terminal-here-command-flag-table' instead."
   :group 'terminal-here
   :type 'string)
 
@@ -67,9 +70,17 @@ buffer is not in a project."
 
 (defcustom terminal-here-terminal-command-table
   (list
+   ;; Linux
+   (cons 'urxvt               (list "urxvt"))
+   (cons 'gnome-terminal      (list "gnome-terminal"))
+   ;; A default which points to whichever terminal the user configures
+   (cons 'x-terminal-emulator (list "x-terminal-emulator"))
+
+   ;; Mac OS
    (cons 'terminal-app        (list "open" "-a" "Terminal.app" "."))
    (cons 'iterm-app           (list "open" "-a" "iTerm.app" "."))
-   (cons 'x-terminal-emulator (list "x-terminal-emulator"))
+
+   ;; Windows
    ;; From http://stackoverflow.com/a/13509208/874671
    (cons 'cmd                 (list "cmd.exe" "/C" "start" "cmd.exe")))
   "A table of terminal commands.
@@ -82,6 +93,18 @@ directory and returning such a list."
                        (choice (repeat string)
                                (function)))))
 
+(defcustom terminal-here-command-flag-table
+  (list
+   (cons 'urxvt "-e")
+   (cons 'gnome-terminal "-x")
+
+   ;; I don't know how to do this on any Mac or Windows terminals! PRs please!
+   )
+  "A table of flags to tell terminals to use the rest of the line as a command to run."
+  :group 'terminal-here
+  :type '(repeat (cons symbol
+                       (choice (repeat string)
+                               (function)))))
 
 
 
@@ -95,6 +118,16 @@ directory and returning such a list."
           (user-error "No settings found for terminal %s in `terminal-here-terminal-command-table'" terminal-here-terminal-command))
         terminal-command)
     terminal-here-terminal-command))
+
+(defun terminal-here--get-command-flag ()
+  (or
+   terminal-here-command-flag
+   (when (and (symbolp terminal-here-terminal-command) (not (functionp terminal-here-terminal-command)))
+     (let ((flag (alist-get terminal-here-terminal-command terminal-here-command-flag-table)))
+       (unless flag
+         (user-error "No flag settings found for terminal %s in `terminal-here-command-flag-table'" terminal-here-terminal-command))
+       flag))
+   (user-error "Couldn't work out how to run an ssh command in your terminal, customize `terminal-here-command-flag' or set `terminal-here-terminal-command' to a symbol for your terminal")))
 
 (defun terminal-here-default-terminal-command (_dir)
   "Pick a good default command to use for DIR."
@@ -128,7 +161,7 @@ directory and returning such a list."
       (list (if user (concat user "@" host) host) localname))))
 
 (defun terminal-here--ssh-command (remote dir)
-  (append (terminal-here--term-command "") (list terminal-here-command-flag "ssh" "-t" remote
+  (append (terminal-here--term-command "") (list (terminal-here--get-command-flag) "ssh" "-t" remote
                                     "cd" (shell-quote-argument dir) "&&" "exec" "$SHELL" "-")))
 
 (defun terminal-here-maybe-tramp-path-to-directory (dir)
