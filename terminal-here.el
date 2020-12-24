@@ -44,6 +44,13 @@ Either:
                  (repeat string)
                  (function)))
 
+(defcustom terminal-here-command-flag
+  "-e"
+  "The flag to tell your terminal to treat the rest of the line as a command to run
+Typically this is -e, gnome-terminal uses -x."
+  :group 'terminal-here
+  :type 'string)
+
 (defcustom terminal-here-project-root-function
   nil
   "Function called to find the current project root directory.
@@ -57,12 +64,6 @@ buffer is not in a project."
   :group 'terminal-here
   :type '(choice (const nil) function))
 
-(defcustom terminal-here-command-flag
-  "-e"
-  "The flag to tell your terminal to treat the rest of the line as a command to run
-Typically this is -e, gnome-terminal uses -x."
-  :group 'terminal-here
-  :type 'string)
 
 (defcustom terminal-here-terminal-command-table
   (list
@@ -79,11 +80,12 @@ directory and returning such a list."
   :group 'terminal-here
   :type '(repeat (cons symbol
                        (choice (repeat string)
-                               (function))))
-  )
+                               (function)))))
 
 
 
+
+;;; Terminal command configuration
 
 (defun terminal-here--get-terminal-command ()
   (if (and (symbolp terminal-here-terminal-command)
@@ -108,14 +110,6 @@ directory and returning such a list."
 
    (t (user-error  "No default terminal detected, please set `terminal-here-terminal-command'"))))
 
-(defun terminal-here--parse-ssh-dir (dir)
-  (when (string-prefix-p "/ssh:" dir)
-    (with-parsed-tramp-file-name dir nil
-      (list (if user (concat user "@" host) host) localname))))
-
-(defun terminal-here--ssh-command (remote dir)
-  (append (terminal-here--term-command "") (list terminal-here-command-flag "ssh" "-t" remote "cd" (shell-quote-argument dir) "&&" "exec" "$SHELL" "-")))
-
 (defun terminal-here--term-command (dir)
   (let ((ssh-data (terminal-here--parse-ssh-dir dir))
         (term-command (terminal-here--get-terminal-command)))
@@ -124,13 +118,18 @@ directory and returning such a list."
      ((functionp term-command) (funcall term-command dir))
      (t term-command))))
 
-(defun terminal-here-launch-in-directory (dir)
-  "Launch a terminal in directory DIR.
+
 
-Handles tramp paths sensibly."
-  (let ((term-command (terminal-here--term-command dir)))
-    (terminal-here--run-command term-command
-                   (or (terminal-here-maybe-tramp-path-to-directory dir) dir))))
+;;; Tramp/ssh support
+
+(defun terminal-here--parse-ssh-dir (dir)
+  (when (string-prefix-p "/ssh:" dir)
+    (with-parsed-tramp-file-name dir nil
+      (list (if user (concat user "@" host) host) localname))))
+
+(defun terminal-here--ssh-command (remote dir)
+  (append (terminal-here--term-command "") (list terminal-here-command-flag "ssh" "-t" remote
+                                    "cd" (shell-quote-argument dir) "&&" "exec" "$SHELL" "-")))
 
 (defun terminal-here-maybe-tramp-path-to-directory (dir)
   "Extract the local part of a local tramp path.
@@ -146,6 +145,17 @@ Given a tramp path returns the local part, otherwise returns nil."
        ((equal (tramp-file-name-method file-name-struct) "ssh") dir)
        (t (user-error "Terminal here cannot currently handle tramp files other than sudo and ssh"))))))
 
+
+
+
+;;; Launching
+
+(defun terminal-here-launch-in-directory (dir)
+  "Launch a terminal in directory DIR.
+
+Handles tramp paths sensibly."
+  (terminal-here--run-command (terminal-here--term-command dir)
+                 (or (terminal-here-maybe-tramp-path-to-directory dir) dir)))
 
 (defun terminal-here--run-command (command dir)
   (let* ((default-directory dir)
