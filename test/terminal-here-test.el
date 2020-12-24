@@ -60,9 +60,19 @@
     (should (equal (terminal-here--term-command "adir")
                    '("1" "2" "3" "adir")))))
 
+(ert-deftest custom-terminal-command-as-symbol-lookup ()
+  (let ((terminal-here-terminal-command 'iterm-app))
+    (should (equal (terminal-here--term-command "foo")
+                   (list "open" "-a" "iTerm.app" ".")))))
+
+(ert-deftest custom-terminal-command-as-symbol-not-in-table ()
+  (let ((terminal-here-terminal-command 'foo))
+    (should-error (terminal-here--term-command "adir") :type 'user-error)))
+
 (ert-deftest custom-terminal-command-customization ()
   (validate-setq terminal-here-terminal-command (list "1" "2" "3"))
   (validate-setq terminal-here-terminal-command (lambda (dir) (list "1" "2" "3" dir)))
+  (validate-setq terminal-here-terminal-command 'iterm-app)
   (should-error (validate-setq terminal-here-terminal-command "astring") :type 'user-error)
   )
 

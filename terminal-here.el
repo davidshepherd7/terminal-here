@@ -30,30 +30,18 @@
   :group 'external
   :prefix "terminal-here-")
 
-(defun terminal-here-default-terminal-command (_dir)
-  "Pick a good default command to use for DIR."
-  (cond
-   ((eq system-type 'darwin)
-    (list "open" "-a" "Terminal.app" "."))
-
-   ;; From http://stackoverflow.com/a/13509208/874671
-   ((memq system-type '(windows-nt ms-dos cygwin))
-    (list "cmd.exe" "/C" "start" "cmd.exe"))
-
-   ;; Probably X11!
-   ((executable-find "x-terminal-emulator") '("x-terminal-emulator"))
-
-   (t (user-error  "No default terminal detected, please set `terminal-here-terminal-command'"))))
-
-
 (defcustom terminal-here-terminal-command
   #'terminal-here-default-terminal-command
-  "The command used to start a terminal.
+  "Specification of the command used to start a terminal.
 
-Either a list of strings: (terminal-binary arg1 arg2 ...); or a
-function taking a directory and returning such a list."
+Either:
+
+* A symbol from `terminal-here-terminal-command-table' indicating the name of the terminal to use
+* A list of strings like '(terminal-binary arg1 arg2 ...)
+* A function taking a directory and returning such a list."
   :group 'terminal-here
-  :type '(choice (repeat string)
+  :type '(choice (symbol)
+                 (repeat string)
                  (function)))
 
 (defcustom terminal-here-project-root-function
@@ -76,7 +64,49 @@ Typically this is -e, gnome-terminal uses -x."
   :group 'terminal-here
   :type 'string)
 
+(defcustom terminal-here-terminal-command-table
+  (list
+   (cons 'terminal-app        (list "open" "-a" "Terminal.app" "."))
+   (cons 'iterm-app           (list "open" "-a" "iTerm.app" "."))
+   (cons 'x-terminal-emulator (list "x-terminal-emulator"))
+   ;; From http://stackoverflow.com/a/13509208/874671
+   (cons 'cmd                 (list "cmd.exe" "/C" "start" "cmd.exe")))
+  "A table of terminal commands.
+
+The keys should be symbols, the values should be either a list of
+strings: (terminal-binary arg1 arg2 ...); or a function taking a
+directory and returning such a list."
+  :group 'terminal-here
+  :type '(repeat (cons symbol
+                       (choice (repeat string)
+                               (function))))
+  )
+
+
 
+
+(defun terminal-here--get-terminal-command ()
+  (if (and (symbolp terminal-here-terminal-command)
+           (not (functionp terminal-here-terminal-command)))
+      (let ((terminal-command (alist-get terminal-here-terminal-command terminal-here-terminal-command-table)))
+        (unless terminal-command
+          (user-error "No settings found for terminal %s in `terminal-here-terminal-command-table'" terminal-here-terminal-command))
+        terminal-command)
+    terminal-here-terminal-command))
+
+(defun terminal-here-default-terminal-command (_dir)
+  "Pick a good default command to use for DIR."
+  (cond
+   ((eq system-type 'darwin)
+    (alist-get 'terminal-app terminal-here-terminal-command-table))
+
+   ((memq system-type '(windows-nt ms-dos cygwin))
+    (alist-get 'cmd terminal-here-terminal-command-table))
+
+   ;; Probably X11!
+   ((executable-find "x-terminal-emulator") (alist-get 'x-terminal-emulator terminal-here-terminal-command-table))
+
+   (t (user-error  "No default terminal detected, please set `terminal-here-terminal-command'"))))
 
 (defun terminal-here--parse-ssh-dir (dir)
   (when (string-prefix-p "/ssh:" dir)
@@ -87,12 +117,12 @@ Typically this is -e, gnome-terminal uses -x."
   (append (terminal-here--term-command "") (list terminal-here-command-flag "ssh" "-t" remote "cd" (shell-quote-argument dir) "&&" "exec" "$SHELL" "-")))
 
 (defun terminal-here--term-command (dir)
-  (let ((ssh-data (terminal-here--parse-ssh-dir dir)))
+  (let ((ssh-data (terminal-here--parse-ssh-dir dir))
+        (term-command (terminal-here--get-terminal-command)))
     (cond
      (ssh-data (terminal-here--ssh-command (car ssh-data) (cadr ssh-data)))
-     (t (if (functionp terminal-here-terminal-command)
-            (funcall terminal-here-terminal-command dir)
-          terminal-here-terminal-command)))))
+     ((functionp term-command) (funcall term-command dir))
+     (t term-command))))
 
 (defun terminal-here-launch-in-directory (dir)
   "Launch a terminal in directory DIR.
