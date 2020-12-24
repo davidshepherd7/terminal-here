@@ -1,9 +1,9 @@
 # Terminal Here
 
-[![travis][travis-badge]][travis-link] [![melpa][melpa-badge]][melpa-link] [![melpa stable badge][melpa-stable-badge]][melpa-stable-link]
+[![CI](https://travis-ci.org/davidshepherd7/terminal-here/workflows/CI/badge.svg)](https://github.com/davidshepherd7/terminal-here/actions)
+[![melpa][melpa-badge]][melpa-link]
+[![melpa stable badge][melpa-stable-badge]][melpa-stable-link]
 
-[travis-link]: https://travis-ci.org/davidshepherd7/terminal-here
-[travis-badge]: https://travis-ci.org/davidshepherd7/terminal-here.svg?branch=master
 [melpa-link]: http://melpa.org/#/terminal-here
 [melpa-badge]: http://melpa.org/packages/terminal-here-badge.svg
 [melpa-stable-link]: https://stable.melpa.org/#/terminal-here
