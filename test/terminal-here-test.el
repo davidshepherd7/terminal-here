@@ -7,38 +7,7 @@
      (stub set-process-query-on-exit-flag)
      ,@body))
 
-
-
-(ert-deftest terminal-here-launch-alias ()
-  (with-terminal-here-mocks
-   (mock (terminal-here-launch-in-directory *))
-   (terminal-here)))
-
-(ert-deftest linux-default-command ()
-  (with-terminal-here-mocks
-   (mock (start-process "x-terminal-emulator" * "x-terminal-emulator"))
-   (stub executable-find => t)
-   (let ((system-type 'gnu/linux))
-     (custom-reevaluate-setting 'terminal-here-terminal-command)
-     (terminal-here-launch-in-directory "adir"))))
-
-(ert-deftest no-default-found ()
-  (with-terminal-here-mocks
-   (stub executable-find => nil)
-   (let ((system-type 'gnu/linux))
-     (custom-reevaluate-setting 'terminal-here-terminal-command)
-     (should-error
-      (terminal-here-launch-in-directory "adir")
-      :type 'user-error))))
-
-(ert-deftest osx-default-command ()
-  (with-terminal-here-mocks
-   (mock (start-process "open" * "open" "-a" "Terminal.app" "."))
-   (let ((system-type 'darwin))
-     (custom-reevaluate-setting 'terminal-here-terminal-command)
-     (terminal-here-launch-in-directory "adir"))))
-
-(ert-deftest windows-default-command ()
+(ert-deftest windows-default-command-integration-test ()
   (with-terminal-here-mocks
    (mock (start-process "cmd.exe" *  "cmd.exe" "/C" "start" "cmd.exe"))
    (let ((system-type 'windows-nt))
@@ -47,23 +16,55 @@
 
 
 
-(ert-deftest custom-terminal-command-as-list ()
+(ert-deftest terminal-here-launch-alias ()
   (with-terminal-here-mocks
-   (mock (start-process "1" * "1" "2" "3"))
-   (validate-setq terminal-here-terminal-command '("1" "2" "3"))
-   (terminal-here-launch-in-directory "adir")))
+   (mock (terminal-here-launch-in-directory *))
+   (terminal-here)))
+
+(ert-deftest linux-default-command ()
+  (let ((system-type 'gnu/linux))
+    (custom-reevaluate-setting 'terminal-here-terminal-command)
+    (should (equal (terminal-here--term-command "adir")
+                   '("x-terminal-emulator")))))
+
+(ert-deftest osx-default-command ()
+  (let ((system-type 'darwin))
+    (custom-reevaluate-setting 'terminal-here-terminal-command)
+    (should (equal (terminal-here--term-command "adir")
+                   '("open" "-a" "Terminal.app" ".")))))
+
+(ert-deftest windows-default-command ()
+  (let ((system-type 'windows-nt))
+    (custom-reevaluate-setting 'terminal-here-terminal-command)
+    (should (equal (terminal-here--term-command "adir")
+                   '("cmd.exe" "/C" "start" "cmd.exe")))))
+
+(ert-deftest no-default-found ()
+  (with-mock
+   (stub executable-find => nil)
+   (let ((system-type 'gnu/linux))
+     (custom-reevaluate-setting 'terminal-here-terminal-command)
+     (should-error
+      (terminal-here--term-command "adir")
+      :type 'user-error))))
+
+
+
+(ert-deftest custom-terminal-command-as-list ()
+  (let ((terminal-here-terminal-command '("1" "2" "3")))
+    (should (equal (terminal-here--term-command "adir")
+                   '("1" "2" "3")))))
 
 (ert-deftest custom-terminal-command-as-function ()
-  (with-terminal-here-mocks
-   (mock (start-process "1" * "1" "2" "3" "adir"))
-   (validate-setq terminal-here-terminal-command (lambda (dir) (list "1" "2" "3" dir)))
-   (terminal-here-launch-in-directory "adir")))
+  (let ((terminal-here-terminal-command (lambda (dir) (list "1" "2" "3" dir))))
+    (should (equal (terminal-here--term-command "adir")
+                   '("1" "2" "3" "adir")))))
 
-(ert-deftest custom-terminal-command-as-junk-rejected ()
-  (with-terminal-here-mocks
-   (should-error
-    (validate-setq terminal-here-terminal-command "astring")
-    :type 'user-error)))
+(ert-deftest custom-terminal-command-customization ()
+  (validate-setq terminal-here-terminal-command (list "1" "2" "3"))
+  (validate-setq terminal-here-terminal-command (lambda (dir) (list "1" "2" "3" dir)))
+  (should-error (validate-setq terminal-here-terminal-command "astring") :type 'user-error)
+  )
 
 
 
