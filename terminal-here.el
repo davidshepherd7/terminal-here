@@ -99,6 +99,7 @@ buffer is not in a project."
    (cons 'gnome-terminal      (list "gnome-terminal"))
    (cons 'alacritty           (list "alacritty"))
    (cons 'st                  #'terminal-here--find-and-run-st)
+   (cons 'konsole             (list "konsole"))
    ;; A default which points to whichever terminal the user configures using
    ;; debconf (or more likely: as part of apt install).
    (cons 'x-terminal-emulator (list "x-terminal-emulator"))
@@ -130,6 +131,7 @@ if you want to use terminal-here with tramp files to create ssh connections.
    (cons 'gnome-terminal "-x")
    (cons 'alacritty      "-e")
    (cons 'st             "-e")
+   (cons 'konsole        "-e") ;; ssh seems to immediately exit with konsole
 
    ;; I don't know how to do this on any Mac or Windows terminals! PRs please!
    )
