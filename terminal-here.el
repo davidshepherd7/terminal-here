@@ -1,9 +1,9 @@
 ;;; terminal-here.el --- Run an external terminal in current directory -*- lexical-binding: t; -*-
 
-;; Copyright © 2017 David Shepherd
+;; Copyright © 2017-202 David Shepherd
 
 ;; Author: David Shepherd <davidshepherd7@gmail.com>
-;; Version: 1.0
+;; Version: 2.0
 ;; Package-Requires: ((emacs "25.1") (cl-lib "0.5"))
 ;; Keywords: tools, frames
 ;; URL: https://github.com/davidshepherd7/terminal-here
