@@ -25,9 +25,6 @@
 
 ;; TODO: readme updates, v2?
 
-;; TODO: better errors when x-terminal-emulator missing on linux, or maybe use
-;; gnome terminal automatically if gnome, Konsole if KDE?
-
 ;; TODO ssh support on Mac OS?
 
 ;; TODO try to fix Konsole ssh
@@ -39,9 +36,30 @@
   :group 'external
   :prefix "terminal-here-")
 
+(defun terminal-here--pick-linux-default ()
+  "Inspect environment variables to try to figure out what kind of Linux this is and pick a sensible terminal."
+  (let ((xdg-current-desktop (getenv "XDG_CURRENT_DESKTOP"))
+        (desktop-session (getenv "DESKTOP_SESSION")))
+    (cond
+     ;; Try to guess from the wide range of "standard" environment variables!
+     ;; Based on xdg_util.cc.
+     ((equal xdg-current-desktop "Unity") 'gnome-terminal)
+     ((equal xdg-current-desktop "GNOME") 'gnome-terminal)
+     ((equal xdg-current-desktop "KDE") 'konsole)
+     ((equal desktop-session "gnome") 'gnome-terminal)
+     ((equal desktop-session "mate") 'gnome-terminal)
+     ((equal desktop-session "kde4") 'konsole)
+     ((equal desktop-session "kde-plasma") 'konsole)
+     ((equal desktop-session "kde") 'konsole)
+     ((equal desktop-session "xubuntu") 'xfce-terminal)
+     ((string-match-p (regexp-quote "xfce") desktop-session) 'xfce-terminal)
+
+     ;; We've failed, hopefully we're on a Debian-based OS so that we can use this
+     ((executable-find "x-terminal-emulator") 'x-terminal-emulator)
+     )))
 
 (defcustom terminal-here-linux-terminal-command
-  'x-terminal-emulator
+  (terminal-here--pick-linux-default)
   "Specification of the command to use to start a terminal on Linux.
 
 If `terminal-here-terminal-command' is non-nil it overrides this setting.
@@ -57,7 +75,6 @@ Valid symbols:
     alacritty
     kitty
     tilix
-    x-terminal-emulator
 "
   :group 'terminal-here
   :type '(choice (symbol)
@@ -158,8 +175,9 @@ buffer is not in a project."
    (cons 'terminator          (list "terminator"))
    (cons 'tilix               (list "tilix"))
    (cons 'kitty               (list "kitty"))
-   ;; A default which points to whichever terminal the user configures using
-   ;; debconf (or more likely: as part of apt install).
+
+   ;; A default which picks a terminal based on the system configuration on
+   ;; Debian-based OSes (but doesn't work for other Linux OSes)
    (cons 'x-terminal-emulator (list "x-terminal-emulator"))
 
    ;; Mac OS
@@ -196,6 +214,8 @@ if you want to use terminal-here with tramp files to create ssh connections.
    (cons 'tilix          "-e")
    (cons 'kitty          "--") ; kitty doesn't need a special flag for this, but
                                         ; we have to specify something.
+   (cons 'x-terminal-emulator "-e") ; Actually this could be anything, but -e is
+                                        ; the most common option.
 
    ;; I don't know how to do this on any Mac or Windows terminals! PRs please!
    )

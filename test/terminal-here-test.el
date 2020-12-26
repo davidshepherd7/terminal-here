@@ -21,12 +21,24 @@
    (mock (terminal-here-launch-in-directory *))
    (terminal-here)))
 
-(ert-deftest linux-default-command ()
-  (let ((system-type 'gnu/linux))
-    (custom-reevaluate-setting 'terminal-here-terminal-command)
-    (custom-reevaluate-setting 'terminal-here-linux-terminal-command)
-    (should (equal (terminal-here--term-command "adir")
-                   '("x-terminal-emulator")))))
+(ert-deftest linux-default-command-debian-no-de ()
+  (with-mock
+   (stub getenv => "")
+   (stub executable-find => t)
+   (let ((system-type 'gnu/linux))
+     (custom-reevaluate-setting 'terminal-here-terminal-command)
+     (custom-reevaluate-setting 'terminal-here-linux-terminal-command)
+     (should (equal (terminal-here--term-command "adir")
+                    '("x-terminal-emulator"))))))
+
+(ert-deftest linux-default-command-gnome-de ()
+  (with-mock
+   (stub getenv => "GNOME")
+   (let ((system-type 'gnu/linux))
+     (custom-reevaluate-setting 'terminal-here-terminal-command)
+     (custom-reevaluate-setting 'terminal-here-linux-terminal-command)
+     (should (equal (terminal-here--term-command "adir")
+                    '("gnome-terminal"))))))
 
 (ert-deftest osx-default-command ()
   (let ((system-type 'darwin))
