@@ -23,6 +23,21 @@
 ;; name parsing. I'm not sure if that's possible though.
 (require 'tramp)
 
+;; TODO: terminal-here-terminal-command as a table is pretty user-unfriendly
+
+;; TODO try to fix Konsole ssh, maybe more quoting? more -t?
+
+;; TODO: better errors when x-terminal-emulator missing on linux, or maybe use
+;; gnome terminal automatically if gnome, Konsole if KDE?
+
+;; TODO config for more terminals: iterm2, kitty
+
+;; TODO config for Mac OS with some of the cross platform terminals?
+
+;; TODO ssh support on Mac OS?
+
+;; TODO: readme updates, v2?
+
 
 
 (defgroup terminal-here nil
@@ -297,3 +312,14 @@ Uses `terminal-here-project-root-function' to determine the project root."
 (provide 'terminal-here)
 
 ;;; terminal-here.el ends here
+
+
+;; Handy code for re-evaluating configuration after adding a new terminal
+
+;; (setf (alist-get 'gnu/linux terminal-here-terminal-command) 'tilix)
+
+;; (defun ds/custom-reset-var (symbl)
+;;   "Reset SYMBL to its standard value."
+;;   (set symbl (eval (car (get symbl 'standard-value)))))
+;; (ds/custom-reset-var 'terminal-here-terminal-command-table)
+;; (ds/custom-reset-var 'terminal-here-command-flag-table)
