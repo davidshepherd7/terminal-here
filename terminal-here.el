@@ -70,8 +70,7 @@ useful anymore except for backwards compatibility."
 
 (defcustom terminal-here-command-flag
   nil
-  "The flag to tell your terminal to treat the rest of the line as a command to run
-Typically this is -e, gnome-terminal uses -x.
+  "The flag to tell your terminal to treat the rest of the line as a command to run.
 
 NOTE: If `terminal-here-terminal-command' is a symbol then this variable is ignored and the flag is looked up in
 `terminal-here-command-flag-table' instead."
@@ -101,6 +100,7 @@ buffer is not in a project."
    (cons 'st                  #'terminal-here--find-and-run-st)
    (cons 'konsole             (list "konsole"))
    (cons 'xterm               (list "xterm"))
+   (cons 'xfce4-terminal      (list "xfce4-terminal"))
    ;; A default which points to whichever terminal the user configures using
    ;; debconf (or more likely: as part of apt install).
    (cons 'x-terminal-emulator (list "x-terminal-emulator"))
@@ -134,6 +134,7 @@ if you want to use terminal-here with tramp files to create ssh connections.
    (cons 'st             "-e")
    (cons 'konsole        "-e") ;; ssh seems to immediately exit with konsole
    (cons 'xterm          "-e")
+   (cons 'xfce4-terminal "-x")
 
    ;; I don't know how to do this on any Mac or Windows terminals! PRs please!
    )
