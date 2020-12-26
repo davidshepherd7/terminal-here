@@ -64,7 +64,7 @@
 
 If `terminal-here-terminal-command' is non-nil it overrides this setting.
 
-Valid symbols:
+Common settings:
     gnome-terminal
     konsole
     xfce4-terminal
@@ -75,6 +75,14 @@ Valid symbols:
     alacritty
     kitty
     tilix
+
+Usually this variable should be one of the symbols listed above.
+
+Alternatively to use a terminal which is not yet supported this should be a
+list of strings representing the command line to run, which will be passed to `start-process'.
+
+For advanced use cases it can be a function which accepts a launch directory
+and returns a list of strings to pass to `start-process'.
 "
   :group 'terminal-here
   :type '(choice (symbol)
@@ -87,11 +95,19 @@ Valid symbols:
 
 If `terminal-here-terminal-command' is non-nil it overrides this setting.
 
-Valid symbols:
+Common settings:
     terminal-app
     iterm2
     alacritty
     kitty
+
+Usually this variable should be one of the symbols listed above.
+
+Alternatively to use a terminal which is not yet supported this should be a
+list of strings representing the command line to run, which will be passed to `start-process'.
+
+For advanced use cases it can be a function which accepts a launch directory
+and returns a list of strings to pass to `start-process'.
 "
   :group 'terminal-here
   :type '(choice (symbol)
@@ -104,8 +120,16 @@ Valid symbols:
 
 If `terminal-here-terminal-command' is non-nil it overrides this setting.
 
-Valid symbols:
+Common settings:
     cmd
+
+Usually this variable should be one of the symbols listed above.
+
+Alternatively to use a terminal which is not yet supported this should be a
+list of strings representing the command line to run, which will be passed to `start-process'.
+
+For advanced use cases it can be a function which accepts a launch directory
+and returns a list of strings to pass to `start-process'.
 "
   :group 'terminal-here
   :type '(choice (symbol)
@@ -114,7 +138,7 @@ Valid symbols:
 
 (defcustom terminal-here-terminal-command
   nil
-  "Specification of the command to use to start a terminal.
+  "Specification of the command to use to start a terminal on all platforms.
 
 If you use Emacs on multiple platforms with the same configuration files you should normally use `terminal-here-linux-terminal-command', `terminal-here-mac-terminal-command', or `terminal-here-windows-terminal-command'
 to configure this instead in a platform specific way.
