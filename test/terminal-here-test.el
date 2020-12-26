@@ -62,19 +62,19 @@
   (let ((terminal-here-terminal-command (list
                                          (cons 'gnu/linux 'foo)
                                          (cons 'msdos 'bar)
-                                         (cons 'darwin 'iterm-app)))
+                                         (cons 'darwin 'iterm2)))
         (system-type 'darwin))
     (should (equal (terminal-here--term-command "foo")
-                   (list "open" "-a" "iTerm.app" ".")))))
+                   (list "open" "-a" "iTerm2.app" ".")))))
 
 (ert-deftest custom-terminal-command-os-missing ()
   (let ((system-type 'foo))
     (should-error (terminal-here--term-command "foo") :type 'user-error)))
 
 (ert-deftest custom-terminal-command-as-symbol-lookup ()
-  (let ((terminal-here-terminal-command 'iterm-app))
+  (let ((terminal-here-terminal-command 'iterm2))
     (should (equal (terminal-here--term-command "foo")
-                   (list "open" "-a" "iTerm.app" ".")))))
+                   (list "open" "-a" "iTerm2.app" ".")))))
 
 (ert-deftest custom-terminal-command-as-symbol-not-in-table ()
   (let ((terminal-here-terminal-command 'foo))

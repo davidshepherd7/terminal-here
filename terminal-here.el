@@ -124,7 +124,7 @@ buffer is not in a project."
 
    ;; Mac OS
    (cons 'terminal-app        (list "open" "-a" "Terminal.app" "."))
-   (cons 'iterm-app           (list "open" "-a" "iTerm.app" "."))
+   (cons 'iterm2              (list "open" "-a" "iTerm2.app" "."))
 
    ;; Windows
    ;; From http://stackoverflow.com/a/13509208/874671
