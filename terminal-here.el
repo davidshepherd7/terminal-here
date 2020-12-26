@@ -23,8 +23,6 @@
 ;; name parsing. I'm not sure if that's possible though.
 (require 'tramp)
 
-;; TODO: terminal-here-terminal-command as a table is pretty user-unfriendly
-
 ;; TODO try to fix Konsole ssh, maybe more quoting? more -t?
 
 ;; TODO: better errors when x-terminal-emulator missing on linux, or maybe use
@@ -45,50 +43,70 @@
   :group 'external
   :prefix "terminal-here-")
 
+
+(defcustom terminal-here-linux-terminal-command
+  'x-terminal-emulator
+  "Specification of the command to use to start a terminal on Linux.
+
+If `terminal-here-terminal-command' is non-nil it overrides this setting."
+  :group 'terminal-here
+  :type '(choice (symbol)
+                 (repeat string)
+                 (function)))
+
+(defcustom terminal-here-mac-terminal-command
+  'terminal-app
+  "Specification of the command to use to start a terminal on Mac OS X.
+
+If `terminal-here-terminal-command' is non-nil it overrides this setting."
+  :group 'terminal-here
+  :type '(choice (symbol)
+                 (repeat string)
+                 (function)))
+
+(defcustom terminal-here-windows-terminal-command
+  'cmd
+  "Specification of the command to use to start a terminal on Windows.
+
+If `terminal-here-terminal-command' is non-nil it overrides this setting."
+  :group 'terminal-here
+  :type '(choice (symbol)
+                 (repeat string)
+                 (function)))
+
 (defcustom terminal-here-terminal-command
-  (list
-   (cons 'gnu/linux  'x-terminal-emulator)
-   (cons 'darwin     'terminal-app)
-   (cons 'windows-nt 'cmd)
-   (cons 'cygwin     'cmd)
-   (cons 'ms-dos     'cmd)
-   )
+  nil
   "Specification of the command to use to start a terminal.
 
-RECOMMENDED:
+If you use Emacs on multiple platforms with the same configuration files you should normally use `terminal-here-linux-terminal-command', `terminal-here-mac-terminal-command', or `terminal-here-windows-terminal-command'
+to configure this instead in a platform specific way.
 
-Alist of terminals to use for each OS.
-
-The terminal should usually be a key from `terminal-here-terminal-command-table', the OS symbol should
-be a possible value of `system-type'.
-
-To use a terminal which is not in `terminal-here-terminal-command-table' you can also set the terminal
-part to a list of strings representing the command line to run, which will be passed to `start-process'.
-
-For advanced use cases the terminal can be set to a function which accepts a directory to launch
-in and returns a list of strings to pass to `start-process'.
+If non-nil this value overrides the platform-specific settings.
 
 
 
-LEGACY:
+Usually this variable should be the symbol for a terminal, the options are the keys of
+`terminal-here-terminal-command-table'.
 
-Previously `terminal-here-terminal-command` contained either a list of strings representing the command
-line to run or a function returning such a list. This is still supported but probably not
-useful anymore except for backwards compatibility."
+Alternatively to use a terminal which is not in the table this should be a
+list of strings representing the command line to run, which will be passed to `start-process'.
+
+For advanced use cases it can be a function which accepts a launch directory
+and returns a list of strings to pass to `start-process'.
+"
   :group 'terminal-here
-  :type '(choice
-          (repeat (cons (choice (symbol)
-                                (repeat string)
-                                (function))))
-          (repeat string)
-          (function)))
+  :type '(choice (symbol)
+                 (repeat string)
+                 (function)))
 
 (defcustom terminal-here-command-flag
   nil
   "The flag to tell your terminal to treat the rest of the line as a command to run.
 
-NOTE: If `terminal-here-terminal-command' is a symbol then this variable is ignored and the flag is looked up in
-`terminal-here-command-flag-table' instead."
+You should not normally need to set this variable.
+
+If this is nil then terminal-here will try to automatically look up the flag for your
+terminal in `terminal-here-command-flag-table'."
   :group 'terminal-here
   :type 'string)
 
@@ -157,7 +175,9 @@ if you want to use terminal-here with tramp files to create ssh connections.
 
    ;; I don't know how to do this on any Mac or Windows terminals! PRs please!
    )
-  "A table of flags to tell terminals to use the rest of the line as a command to run."
+  "A table of flags to tell terminals to use the rest of the line as a command to run.
+
+If `terminal-here-command-flag' is set then it will be used instead of this table."
   :group 'terminal-here
   :type '(repeat (cons symbol
                        (choice (repeat string)
@@ -175,13 +195,16 @@ if you want to use terminal-here with tramp files to create ssh connections.
        (consp (car x))
        (terminal-here--non-function-symbol-p (caar x))))
 
-(defun terminal-here--maybe-lookup-os-terminal-command (table-or-term-spec)
-  (if (not (terminal-here--per-os-command-table-p table-or-term-spec))
-      table-or-term-spec
-    (let ((term-spec (alist-get system-type table-or-term-spec)))
-      (unless term-spec
-        (user-error "`terminal-here-terminal-command' looks like a table of terminals for each OS, but no settings were found for the current `system-type': %s" system-type))
-      term-spec)))
+(defun terminal-here--os-terminal-command ()
+  (or
+   terminal-here-terminal-command
+   (when (equal system-type 'gnu/linux) terminal-here-linux-terminal-command)
+   (when (equal system-type 'darwin) terminal-here-mac-terminal-command)
+   (when (or (equal system-type 'ms-dos)
+             (equal system-type 'windows-nt)
+             (equal system-type 'cygwin))
+     terminal-here-windows-terminal-command)
+   (user-error "No terminal configuration found for OS %s" system-type)))
 
 (defun terminal-here--maybe-lookup-in-command-table (term-spec)
   (if (not (terminal-here--non-function-symbol-p term-spec))
@@ -197,15 +220,14 @@ if you want to use terminal-here with tramp files to create ssh connections.
     (funcall x dir)))
 
 (defun terminal-here--get-terminal-command (dir)
-  (thread-last terminal-here-terminal-command
-    (terminal-here--maybe-lookup-os-terminal-command)
+  (thread-last (terminal-here--os-terminal-command)
     (terminal-here--maybe-lookup-in-command-table)
     (terminal-here--maybe-funcall dir)))
 
 (defun terminal-here--get-command-flag ()
   (or
    terminal-here-command-flag
-   (let ((term-spec (terminal-here--maybe-lookup-os-terminal-command terminal-here-terminal-command)))
+   (let ((term-spec (terminal-here--os-terminal-command)))
      (when (terminal-here--non-function-symbol-p term-spec)
        (let ((flag (alist-get term-spec terminal-here-command-flag-table)))
          (unless flag
@@ -316,7 +338,8 @@ Uses `terminal-here-project-root-function' to determine the project root."
 
 ;; Handy code for re-evaluating configuration after adding a new terminal
 
-;; (setf (alist-get 'gnu/linux terminal-here-terminal-command) 'tilix)
+;; (validate-setq terminal-here-terminal-command nil)
+;; (validate-setq terminal-here-linux-terminal-command 'tilix)
 
 ;; (defun ds/custom-reset-var (symbl)
 ;;   "Reset SYMBL to its standard value."
