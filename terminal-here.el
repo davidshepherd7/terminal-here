@@ -25,14 +25,10 @@
 
 ;; TODO: readme updates, v2?
 
-;; TODO config for Mac OS with some of the cross platform terminals?
-
 ;; TODO: better errors when x-terminal-emulator missing on linux, or maybe use
 ;; gnome terminal automatically if gnome, Konsole if KDE?
 
 ;; TODO ssh support on Mac OS?
-
-;; TODO config for more terminals: kitty?
 
 ;; TODO try to fix Konsole ssh
 
@@ -48,7 +44,21 @@
   'x-terminal-emulator
   "Specification of the command to use to start a terminal on Linux.
 
-If `terminal-here-terminal-command' is non-nil it overrides this setting."
+If `terminal-here-terminal-command' is non-nil it overrides this setting.
+
+Valid symbols:
+    gnome-terminal
+    konsole
+    xfce4-terminal
+    terminator
+    xterm
+    urxvt
+    st
+    alacritty
+    kitty
+    tilix
+    x-terminal-emulator
+"
   :group 'terminal-here
   :type '(choice (symbol)
                  (repeat string)
@@ -58,7 +68,14 @@ If `terminal-here-terminal-command' is non-nil it overrides this setting."
   'terminal-app
   "Specification of the command to use to start a terminal on Mac OS X.
 
-If `terminal-here-terminal-command' is non-nil it overrides this setting."
+If `terminal-here-terminal-command' is non-nil it overrides this setting.
+
+Valid symbols:
+    terminal-app
+    iterm2
+    alacritty
+    kitty
+"
   :group 'terminal-here
   :type '(choice (symbol)
                  (repeat string)
@@ -68,7 +85,11 @@ If `terminal-here-terminal-command' is non-nil it overrides this setting."
   'cmd
   "Specification of the command to use to start a terminal on Windows.
 
-If `terminal-here-terminal-command' is non-nil it overrides this setting."
+If `terminal-here-terminal-command' is non-nil it overrides this setting.
+
+Valid symbols:
+    cmd
+"
   :group 'terminal-here
   :type '(choice (symbol)
                  (repeat string)
@@ -136,6 +157,7 @@ buffer is not in a project."
    (cons 'xfce4-terminal      (list "xfce4-terminal"))
    (cons 'terminator          (list "terminator"))
    (cons 'tilix               (list "tilix"))
+   (cons 'kitty               (list "kitty"))
    ;; A default which points to whichever terminal the user configures using
    ;; debconf (or more likely: as part of apt install).
    (cons 'x-terminal-emulator (list "x-terminal-emulator"))
@@ -172,6 +194,8 @@ if you want to use terminal-here with tramp files to create ssh connections.
    (cons 'xfce4-terminal "-x")
    (cons 'terminator     "-x")
    (cons 'tilix          "-e")
+   (cons 'kitty          "--") ; kitty doesn't need a special flag for this, but
+                                        ; we have to specify something.
 
    ;; I don't know how to do this on any Mac or Windows terminals! PRs please!
    )
@@ -351,7 +375,7 @@ Uses `terminal-here-project-root-function' to determine the project root."
 ;; Handy code for re-evaluating configuration after adding a new terminal
 
 ;; (validate-setq terminal-here-terminal-command nil)
-;; (validate-setq terminal-here-linux-terminal-command 'tilix)
+;; (validate-setq terminal-here-linux-terminal-command 'kitty)
 
 ;; (defun ds/custom-reset-var (symbl)
 ;;   "Reset SYMBL to its standard value."
