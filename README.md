@@ -17,6 +17,8 @@ An Emacs package to open an *external* terminal emulator in directories associat
 
 Run `terminal-here-launch` to start a terminal in the current directory.
 
+TODO: this section needs updating for v2
+
 If the default command doesn't launch your preferred terminal you can set 
 `terminal-here-terminal-command` to either a list containing the command and
 arguments (e.g. `(list "my-terminal" "--foo")`)

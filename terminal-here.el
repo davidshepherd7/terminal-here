@@ -23,18 +23,18 @@
 ;; name parsing. I'm not sure if that's possible though.
 (require 'tramp)
 
-;; TODO try to fix Konsole ssh, maybe more quoting? more -t?
+;; TODO: readme updates, v2?
+
+;; TODO config for Mac OS with some of the cross platform terminals?
 
 ;; TODO: better errors when x-terminal-emulator missing on linux, or maybe use
 ;; gnome terminal automatically if gnome, Konsole if KDE?
 
-;; TODO config for more terminals: iterm2, kitty
-
-;; TODO config for Mac OS with some of the cross platform terminals?
-
 ;; TODO ssh support on Mac OS?
 
-;; TODO: readme updates, v2?
+;; TODO config for more terminals: kitty?
+
+;; TODO try to fix Konsole ssh
 
 
 
@@ -141,8 +141,8 @@ buffer is not in a project."
    (cons 'x-terminal-emulator (list "x-terminal-emulator"))
 
    ;; Mac OS
-   (cons 'terminal-app        (list "open" "-a" "Terminal.app" "."))
-   (cons 'iterm2              (list "open" "-a" "iTerm2.app" "."))
+   (cons 'terminal-app        (list "Terminal.app"))
+   (cons 'iterm2              (list "iTerm2.app"))
 
    ;; Windows
    ;; From http://stackoverflow.com/a/13509208/874671
@@ -222,10 +222,17 @@ If `terminal-here-command-flag' is set then it will be used instead of this tabl
       x
     (funcall x dir)))
 
+(defun terminal-here--maybe-add-mac-os-open (command)
+  "On Mac OS we use the open command to run the terminal in `default-directory'."
+  (if (not (equal system-type 'darwin))
+      command
+    (append (list "open" "-a" (car command) "." "--args") (cdr command))))
+
 (defun terminal-here--get-terminal-command (dir)
   (thread-last (terminal-here--os-terminal-command)
     (terminal-here--maybe-lookup-in-command-table)
-    (terminal-here--maybe-funcall dir)))
+    (terminal-here--maybe-funcall dir)
+    (terminal-here--maybe-add-mac-os-open)))
 
 (defun terminal-here--get-command-flag ()
   (or
