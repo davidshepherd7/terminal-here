@@ -39,8 +39,8 @@
 
 (defun terminal-here--pick-linux-default ()
   "Inspect environment variables to try to figure out what kind of Linux this is and pick a sensible terminal."
-  (let ((xdg-current-desktop (getenv "XDG_CURRENT_DESKTOP"))
-        (desktop-session (getenv "DESKTOP_SESSION")))
+  (let ((xdg-current-desktop (or (getenv "XDG_CURRENT_DESKTOP") ""))
+        (desktop-session (or (getenv "DESKTOP_SESSION") "")))
     (cond
      ;; Try to guess from the wide range of "standard" environment variables!
      ;; Based on xdg_util.cc.

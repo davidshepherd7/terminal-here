@@ -40,6 +40,16 @@
      (should (equal (terminal-here--term-command "adir")
                     '("gnome-terminal"))))))
 
+(ert-deftest linux-default-command-weird-os ()
+  (with-mock
+   (stub getenv => nil)
+   (stub executable-find => nil)
+   (let ((system-type 'gnu/linux))
+     (custom-reevaluate-setting 'terminal-here-linux-terminal-command)
+     ;; This will cause a helpful user-error when the user trys to launch a
+     ;; terminal.
+     (should (equal terminal-here-linux-terminal-command nil)))))
+
 (ert-deftest osx-default-command ()
   (let ((system-type 'darwin))
     (custom-reevaluate-setting 'terminal-here-terminal-command)
