@@ -39,14 +39,12 @@
     (should (equal (terminal-here--term-command "adir")
                    '("cmd.exe" "/C" "start" "cmd.exe")))))
 
-(ert-deftest no-default-found ()
-  (with-mock
-   (stub executable-find => nil)
-   (let ((system-type 'gnu/linux))
-     (custom-reevaluate-setting 'terminal-here-terminal-command)
-     (should-error
-      (terminal-here--term-command "adir")
-      :type 'user-error))))
+(ert-deftest no-terminal-for-os-found ()
+  (let ((system-type 'foo))
+    (custom-reevaluate-setting 'terminal-here-terminal-command)
+    (should-error
+     (terminal-here--term-command "adir")
+     :type 'user-error)))
 
 
 
@@ -60,6 +58,19 @@
     (should (equal (terminal-here--term-command "adir")
                    '("1" "2" "3" "adir")))))
 
+(ert-deftest custom-terminal-command-os-then-command-lookup ()
+  (let ((terminal-here-terminal-command (list
+                                         (cons 'gnu/linux 'foo)
+                                         (cons 'msdos 'bar)
+                                         (cons 'darwin 'iterm-app)))
+        (system-type 'darwin))
+    (should (equal (terminal-here--term-command "foo")
+                   (list "open" "-a" "iTerm.app" ".")))))
+
+(ert-deftest custom-terminal-command-os-missing ()
+  (let ((system-type 'foo))
+    (should-error (terminal-here--term-command "foo") :type 'user-error)))
+
 (ert-deftest custom-terminal-command-as-symbol-lookup ()
   (let ((terminal-here-terminal-command 'iterm-app))
     (should (equal (terminal-here--term-command "foo")
@@ -72,12 +83,20 @@
 (ert-deftest custom-terminal-command-customization ()
   (validate-setq terminal-here-terminal-command (list "1" "2" "3"))
   (validate-setq terminal-here-terminal-command (lambda (dir) (list "1" "2" "3" dir)))
-  (validate-setq terminal-here-terminal-command 'iterm-app)
+  (validate-setq terminal-here-terminal-command (list (cons 'gnu/linux 'foo)))
+  (validate-setq terminal-here-terminal-command (list (cons 'gnu/linux (list "1" "2" "3"))))
+  (validate-setq terminal-here-terminal-command (list (cons 'gnu/linux (lambda (dir) (list "1" "2" "3" dir)))))
   (should-error (validate-setq terminal-here-terminal-command "astring") :type 'user-error)
   )
 
 (ert-deftest custom-command-flag-customization ()
   (validate-setq terminal-here-command-flag "-k"))
+
+(ert-deftest custom-command-flag-os-then-command-table-lookup ()
+  (let ((terminal-here-command-flag nil)
+        (system-type 'gnu/linux)
+        (terminal-here-terminal-command (list (cons 'gnu/linux 'urxvt))))
+    (should (equal (terminal-here--get-command-flag) "-e"))))
 
 (ert-deftest custom-command-flag-table-lookup ()
   (let ((terminal-here-command-flag nil)

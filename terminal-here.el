@@ -31,18 +31,42 @@
   :prefix "terminal-here-")
 
 (defcustom terminal-here-terminal-command
-  #'terminal-here-default-terminal-command
-  "Specification of the command used to start a terminal.
+  (list
+   (cons 'gnu/linux  'x-terminal-emulator)
+   (cons 'darwin     'terminal-app)
+   (cons 'windows-nt 'cmd)
+   (cons 'cygwin     'cmd)
+   (cons 'ms-dos     'cmd)
+   )
+  "Specification of the command to use to start a terminal.
 
-Either:
+RECOMMENDED:
 
-* A symbol from `terminal-here-terminal-command-table' indicating the name of the terminal to use
-* A list of strings like '(terminal-binary arg1 arg2 ...)
-* A function taking a directory and returning such a list."
+Alist of terminals to use for each OS.
+
+The terminal should usually be a key from `terminal-here-terminal-command-table', the OS symbol should
+be a possible value of `system-type'.
+
+To use a terminal which is not in `terminal-here-terminal-command-table' you can also set the terminal
+part to a list of strings representing the command line to run, which will be passed to `start-process'.
+
+For advanced use cases the terminal can be set to a function which accepts a directory to launch
+in and returns a list of strings to pass to `start-process'.
+
+
+
+LEGACY:
+
+Previously `terminal-here-terminal-command` contained either a list of strings representing the command
+line to run or a function returning such a list. This is still supported but probably not
+useful anymore except for backwards compatibility."
   :group 'terminal-here
-  :type '(choice (symbol)
-                 (repeat string)
-                 (function)))
+  :type '(choice
+          (repeat (cons (choice (symbol)
+                                (repeat string)
+                                (function))))
+          (repeat string)
+          (function)))
 
 (defcustom terminal-here-command-flag
   nil
@@ -73,7 +97,8 @@ buffer is not in a project."
    ;; Linux
    (cons 'urxvt               (list "urxvt"))
    (cons 'gnome-terminal      (list "gnome-terminal"))
-   ;; A default which points to whichever terminal the user configures
+   ;; A default which points to whichever terminal the user configures using
+   ;; debconf (or more likely: as part of apt install).
    (cons 'x-terminal-emulator (list "x-terminal-emulator"))
 
    ;; Mac OS
@@ -87,7 +112,11 @@ buffer is not in a project."
 
 The keys should be symbols, the values should be either a list of
 strings: (terminal-binary arg1 arg2 ...); or a function taking a
-directory and returning such a list."
+directory and returning such a list.
+
+When you add a new entry here you should also add an entry to `terminal-here-command-flag-table'
+if you want to use terminal-here with tramp files to create ssh connections.
+"
   :group 'terminal-here
   :type '(repeat (cons symbol
                        (choice (repeat string)
@@ -110,46 +139,57 @@ directory and returning such a list."
 
 ;;; Terminal command configuration
 
-(defun terminal-here--get-terminal-command ()
-  (if (and (symbolp terminal-here-terminal-command)
-           (not (functionp terminal-here-terminal-command)))
-      (let ((terminal-command (alist-get terminal-here-terminal-command terminal-here-terminal-command-table)))
-        (unless terminal-command
-          (user-error "No settings found for terminal %s in `terminal-here-terminal-command-table'" terminal-here-terminal-command))
-        terminal-command)
-    terminal-here-terminal-command))
+(defun terminal-here--non-function-symbol-p (x)
+  (and (symbolp x) (not (functionp x))))
+
+(defun terminal-here--per-os-command-table-p (x)
+  (and (listp x)
+       (consp (car x))
+       (terminal-here--non-function-symbol-p (caar x))))
+
+(defun terminal-here--maybe-lookup-os-terminal-command (table-or-term-spec)
+  (if (not (terminal-here--per-os-command-table-p table-or-term-spec))
+      table-or-term-spec
+    (let ((term-spec (alist-get system-type table-or-term-spec)))
+      (unless term-spec
+        (user-error "`terminal-here-terminal-command' looks like a table of terminals for each OS, but no settings were found for the current `system-type': %s" system-type))
+      term-spec)))
+
+(defun terminal-here--maybe-lookup-in-command-table (term-spec)
+  (if (not (terminal-here--non-function-symbol-p term-spec))
+      term-spec
+    (let ((terminal-command (alist-get term-spec terminal-here-terminal-command-table)))
+      (unless terminal-command
+        (user-error "No settings found for terminal %s in `terminal-here-terminal-command-table'" term-spec))
+      terminal-command)))
+
+(defun terminal-here--maybe-funcall (dir x)
+  (if (not (functionp x))
+      x
+    (funcall x dir)))
+
+(defun terminal-here--get-terminal-command (dir)
+  (thread-last terminal-here-terminal-command
+    (terminal-here--maybe-lookup-os-terminal-command)
+    (terminal-here--maybe-lookup-in-command-table)
+    (terminal-here--maybe-funcall dir)))
 
 (defun terminal-here--get-command-flag ()
   (or
    terminal-here-command-flag
-   (when (and (symbolp terminal-here-terminal-command) (not (functionp terminal-here-terminal-command)))
-     (let ((flag (alist-get terminal-here-terminal-command terminal-here-command-flag-table)))
-       (unless flag
-         (user-error "No flag settings found for terminal %s in `terminal-here-command-flag-table'" terminal-here-terminal-command))
-       flag))
-   (user-error "Couldn't work out how to run an ssh command in your terminal, customize `terminal-here-command-flag' or set `terminal-here-terminal-command' to a symbol for your terminal")))
-
-(defun terminal-here-default-terminal-command (_dir)
-  "Pick a good default command to use for DIR."
-  (cond
-   ((eq system-type 'darwin)
-    (alist-get 'terminal-app terminal-here-terminal-command-table))
-
-   ((memq system-type '(windows-nt ms-dos cygwin))
-    (alist-get 'cmd terminal-here-terminal-command-table))
-
-   ;; Probably X11!
-   ((executable-find "x-terminal-emulator") (alist-get 'x-terminal-emulator terminal-here-terminal-command-table))
-
-   (t (user-error  "No default terminal detected, please set `terminal-here-terminal-command'"))))
+   (let ((term-spec (terminal-here--maybe-lookup-os-terminal-command terminal-here-terminal-command)))
+     (when (terminal-here--non-function-symbol-p term-spec)
+       (let ((flag (alist-get term-spec terminal-here-command-flag-table)))
+         (unless flag
+           (user-error "No flag settings found for terminal %s in `terminal-here-command-flag-table'" term-spec))
+         flag)))
+   (user-error "Couldn't work out how to run an ssh command in your terminal, customize `terminal-here-command-flag' or set `terminal-here-terminal-command' to specify your terminal by symbol")))
 
 (defun terminal-here--term-command (dir)
-  (let ((ssh-data (terminal-here--parse-ssh-dir dir))
-        (term-command (terminal-here--get-terminal-command)))
-    (cond
-     (ssh-data (terminal-here--ssh-command (car ssh-data) (cadr ssh-data)))
-     ((functionp term-command) (funcall term-command dir))
-     (t term-command))))
+  (let ((ssh-data (terminal-here--parse-ssh-dir dir)))
+    (if ssh-data
+        (terminal-here--ssh-command (car ssh-data) (cadr ssh-data))
+      (terminal-here--get-terminal-command dir))))
 
 
 
