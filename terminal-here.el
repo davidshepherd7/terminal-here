@@ -18,6 +18,7 @@
 ;;; Code:
 
 (require 'cl-lib)
+(require 'subr-x)
 
 ;; TODO: it would be nice not to need to load all of tramp just for the file
 ;; name parsing. I'm not sure if that's possible though.
