@@ -183,6 +183,9 @@ If `terminal-here-command-flag' is set then it will be used instead of this tabl
                        (choice (repeat string)
                                (function)))))
 
+(defvar terminal-here--verbose nil
+  "Print commands before they are run.")
+
 
 
 ;;; Terminal command configuration
@@ -289,6 +292,8 @@ Handles tramp paths sensibly."
                  (or (terminal-here-maybe-tramp-path-to-directory dir) dir)))
 
 (defun terminal-here--run-command (command dir)
+  (when terminal-here--verbose
+    (message "Running %s with default-directory %s" command dir))
   (let* ((default-directory dir)
          (process-name (car command))
          (proc (apply #'start-process process-name nil command)))
