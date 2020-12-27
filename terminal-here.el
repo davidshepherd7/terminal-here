@@ -4,7 +4,7 @@
 
 ;; Author: David Shepherd <davidshepherd7@gmail.com>
 ;; Version: 2.0
-;; Package-Requires: ((emacs "25.1") (cl-lib "0.5"))
+;; Package-Requires: ((emacs "25.1"))
 ;; Keywords: tools, frames
 ;; URL: https://github.com/davidshepherd7/terminal-here
 
@@ -56,8 +56,7 @@
      ((string-match-p (regexp-quote "xfce") desktop-session) 'xfce-terminal)
 
      ;; We've failed, hopefully we're on a Debian-based OS so that we can use this
-     ((executable-find "x-terminal-emulator") 'x-terminal-emulator)
-     )))
+     ((executable-find "x-terminal-emulator") 'x-terminal-emulator))))
 
 (defcustom terminal-here-linux-terminal-command
   (terminal-here--pick-linux-default)
