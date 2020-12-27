@@ -48,3 +48,6 @@ jobs:
         
       - name: Test
         run: PATH="/home/runner/.cask/bin:$PATH" make test
+
+      - name: Package lint
+        run: PATH="/home/runner/.cask/bin:$PATH" make package-lint
