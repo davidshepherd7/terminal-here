@@ -1,6 +1,9 @@
 package-lint:
 	cask exec emacs -Q --batch -l "package-lint.el" -f "package-lint-batch-and-exit" terminal-here.el
 
+checkdoc:
+	cask exec emacs -Q --batch --eval '(checkdoc-file "terminal-here.el")'
+
 build :
 	cask exec emacs -Q --batch --eval             \
 	    "(progn                                \

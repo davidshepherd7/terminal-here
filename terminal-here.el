@@ -33,7 +33,7 @@
 
 
 (defgroup terminal-here nil
-  "Open external terminal emulators in the current buffer's directory."
+  "Open external terminal emulators in current buffer's directory."
   :group 'external
   :prefix "terminal-here-")
 
@@ -62,7 +62,8 @@
   (terminal-here--pick-linux-default)
   "Specification of the command to use to start a terminal on Linux.
 
-If `terminal-here-terminal-command' is non-nil it overrides this setting.
+If `terminal-here-terminal-command' is non-nil it overrides this
+setting.
 
 Common settings:
     gnome-terminal
@@ -78,12 +79,13 @@ Common settings:
 
 Usually this variable should be one of the symbols listed above.
 
-Alternatively to use a terminal which is not yet supported this should be a
-list of strings representing the command line to run, which will be passed to `start-process'.
+Alternatively to use a terminal which is not yet supported this
+should be a list of strings representing the command line to run,
+which will be passed to `start-process'.
 
-For advanced use cases it can be a function which accepts a launch directory
-and returns a list of strings to pass to `start-process'.
-"
+For advanced use cases it can be a function which accepts a
+launch directory and returns a list of strings to pass to
+`start-process'."
   :group 'terminal-here
   :type '(choice (symbol)
                  (repeat string)
@@ -93,7 +95,8 @@ and returns a list of strings to pass to `start-process'.
   'terminal-app
   "Specification of the command to use to start a terminal on Mac OS X.
 
-If `terminal-here-terminal-command' is non-nil it overrides this setting.
+If `terminal-here-terminal-command' is non-nil it overrides this
+setting.
 
 Common settings:
     terminal-app
@@ -103,12 +106,13 @@ Common settings:
 
 Usually this variable should be one of the symbols listed above.
 
-Alternatively to use a terminal which is not yet supported this should be a
-list of strings representing the command line to run, which will be passed to `start-process'.
+Alternatively to use a terminal which is not yet supported this
+should be a list of strings representing the command line to run,
+which will be passed to `start-process'.
 
-For advanced use cases it can be a function which accepts a launch directory
-and returns a list of strings to pass to `start-process'.
-"
+For advanced use cases it can be a function which accepts a
+launch directory and returns a list of strings to pass to
+`start-process'."
   :group 'terminal-here
   :type '(choice (symbol)
                  (repeat string)
@@ -118,19 +122,21 @@ and returns a list of strings to pass to `start-process'.
   'cmd
   "Specification of the command to use to start a terminal on Windows.
 
-If `terminal-here-terminal-command' is non-nil it overrides this setting.
+If `terminal-here-terminal-command' is non-nil it overrides this
+setting.
 
 Common settings:
     cmd
 
 Usually this variable should be one of the symbols listed above.
 
-Alternatively to use a terminal which is not yet supported this should be a
-list of strings representing the command line to run, which will be passed to `start-process'.
+Alternatively to use a terminal which is not yet supported this
+should be a list of strings representing the command line to run,
+which will be passed to `start-process'.
 
-For advanced use cases it can be a function which accepts a launch directory
-and returns a list of strings to pass to `start-process'.
-"
+For advanced use cases it can be a function which accepts a
+launch directory and returns a list of strings to pass to
+`start-process'."
   :group 'terminal-here
   :type '(choice (symbol)
                  (repeat string)
@@ -140,22 +146,27 @@ and returns a list of strings to pass to `start-process'.
   nil
   "Specification of the command to use to start a terminal on all platforms.
 
-If you use Emacs on multiple platforms with the same configuration files you should normally use `terminal-here-linux-terminal-command', `terminal-here-mac-terminal-command', or `terminal-here-windows-terminal-command'
-to configure this instead in a platform specific way.
+If you use Emacs on multiple platforms with the same
+configuration files you should normally use
+`terminal-here-linux-terminal-command',
+`terminal-here-mac-terminal-command', or
+`terminal-here-windows-terminal-command' to configure this
+instead in a platform specific way.
 
 If non-nil this value overrides the platform-specific settings.
 
 
 
-Usually this variable should be the symbol for a terminal, the options are the keys of
-`terminal-here-terminal-command-table'.
+Usually this variable should be the symbol for a terminal, the
+options are the keys of `terminal-here-terminal-command-table'.
 
-Alternatively to use a terminal which is not in the table this should be a
-list of strings representing the command line to run, which will be passed to `start-process'.
+Alternatively to use a terminal which is not in the table this
+should be a list of strings representing the command line to run,
+which will be passed to `start-process'.
 
-For advanced use cases it can be a function which accepts a launch directory
-and returns a list of strings to pass to `start-process'.
-"
+For advanced use cases it can be a function which accepts a
+launch directory and returns a list of strings to pass to
+`start-process'."
   :group 'terminal-here
   :type '(choice (symbol)
                  (repeat string)
@@ -167,8 +178,9 @@ and returns a list of strings to pass to `start-process'.
 
 You should not normally need to set this variable.
 
-If this is nil then terminal-here will try to automatically look up the flag for your
-terminal in `terminal-here-command-flag-table'."
+If this is nil then terminal-here will try to automatically look
+up the flag for your terminal in
+`terminal-here-command-flag-table'."
   :group 'terminal-here
   :type 'string)
 
@@ -217,9 +229,9 @@ The keys should be symbols, the values should be either a list of
 strings: (terminal-binary arg1 arg2 ...); or a function taking a
 directory and returning such a list.
 
-When you add a new entry here you should also add an entry to `terminal-here-command-flag-table'
-if you want to use terminal-here with tramp files to create ssh connections.
-"
+When you add a new entry here you should also add an entry to
+`terminal-here-command-flag-table' if you want to use
+terminal-here with tramp files to create ssh connections."
   :group 'terminal-here
   :type '(repeat (cons symbol
                        (choice (repeat string)
@@ -245,7 +257,8 @@ if you want to use terminal-here with tramp files to create ssh connections.
    )
   "A table of flags to tell terminals to use the rest of the line as a command to run.
 
-If `terminal-here-command-flag' is set then it will be used instead of this table."
+If `terminal-here-command-flag' is set then it will be used
+instead of this table."
   :group 'terminal-here
   :type '(repeat (cons symbol
                        (choice (repeat string)
@@ -343,7 +356,8 @@ If `terminal-here-command-flag' is set then it will be used instead of this tabl
 (defun terminal-here-maybe-tramp-path-to-directory (dir)
   "Extract the local part of a local tramp path.
 
-Given a tramp path returns the local part, otherwise returns nil."
+Given a tramp path returns the local part, otherwise returns
+nil."
   (when (tramp-tramp-file-p dir)
     (let ((file-name-struct (tramp-dissect-file-name dir)))
       (cond
@@ -398,12 +412,13 @@ changed it by running `cd'."
 (defun terminal-here-project-launch ()
   "Launch a terminal in the current project root.
 
-Uses `terminal-here-project-root-function' to determine the project root."
+Uses `terminal-here-project-root-function' to determine the
+project root."
   (interactive)
   (let* ((real-project-root-function
           (or terminal-here-project-root-function
               (cl-find-if #'fboundp (list 'projectile-project-root 'vc-root-dir))
-              (user-error "No `terminal-here-project-root-function' is set and no default could be picked.")))
+              (user-error "No `terminal-here-project-root-function' is set and no default could be picked")))
          (root (funcall real-project-root-function)))
     (when (not root)
       (user-error "Not in any project according to `terminal-here-project-root-function'"))
