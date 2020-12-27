@@ -1,11 +1,15 @@
 ;;; -*- lexical-binding: t; -*-
 
+(require 'el-mock)
+(require 'terminal-here)
+(require 'validate)
+
 (defmacro with-terminal-here-mocks (&rest body)
   "Stub out some process interaction functions"
   `(with-mock
-     (stub set-process-sentinel)
-     (stub set-process-query-on-exit-flag)
-     ,@body))
+    (stub set-process-sentinel)
+    (stub set-process-query-on-exit-flag)
+    ,@body))
 
 (ert-deftest windows-default-command-integration-test ()
   (with-terminal-here-mocks
