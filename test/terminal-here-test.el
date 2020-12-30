@@ -92,7 +92,7 @@
         (system-type 'darwin)
         (terminal-here-terminal-command nil))
     (should (equal (terminal-here--term-command "foo")
-                   (list "open" "-a" "iTerm2.app" "." "--args")))))
+                   (list "open" "-a" "iTerm.app" "." "--args")))))
 
 (ert-deftest custom-terminal-command-os-missing ()
   (let ((system-type 'foo)
@@ -103,7 +103,7 @@
   (let ((terminal-here-terminal-command 'iterm2)
         (system-type 'darwin))
     (should (equal (terminal-here--term-command "foo")
-                   (list "open" "-a" "iTerm2.app" "." "--args")))))
+                   (list "open" "-a" "iTerm.app" "." "--args")))))
 
 (ert-deftest custom-terminal-command-as-symbol-not-in-table ()
   (let ((terminal-here-terminal-command 'foo))
