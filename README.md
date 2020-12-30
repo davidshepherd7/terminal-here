@@ -81,7 +81,7 @@ the predefined terminal configurations this should work without any configuratio
 
 For other terminals you will need to set `terminal-here-command-flag` to the
 command line flag which tells the terminal to treat the rest of the command line
-as a separate command to run inside the terminal
+as a separate command to run inside the terminal.
 
 
 ## Advanced configuration
@@ -102,7 +102,7 @@ the terminal.
 
 * Added support for simpler customisation by setting the terminal to a symbol
   from a list of supported terminal symbols.
-* Allow configuration of different terminals on different operating systems.
+* Allow simple configuration of different terminals on different operating systems.
 * Improved selection of a default terminal for non-Debian Linux OSes.
 * Out-of-the-box support for SSH on many more terminals.
 
