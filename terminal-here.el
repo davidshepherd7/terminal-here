@@ -305,9 +305,10 @@ instead of this table."
 
 (defun terminal-here--maybe-add-mac-os-open (command)
   "On Mac OS we use the open command to run the terminal in `default-directory'."
-  (if (not (equal system-type 'darwin))
-      command
-    (append (list "open" "-a" (car command) "." "--args") (cdr command))))
+  (if (and (equal system-type 'darwin)
+           (not (equal (car command) "open")))
+      (append (list "open" "-a" (car command) "." "--args") (cdr command))
+    command))
 
 (defun terminal-here--get-terminal-command (dir)
   (thread-last (terminal-here--os-terminal-command)

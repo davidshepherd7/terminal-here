@@ -94,6 +94,13 @@
     (should (equal (terminal-here--term-command "foo")
                    (list "open" "-a" "iTerm.app" "." "--args")))))
 
+(ert-deftest dont-add-open-to-mac-command-twice ()
+  (let ((terminal-here-mac-terminal-command nil)
+        (system-type 'darwin)
+        (terminal-here-terminal-command '("open" "-a" "iTerm.app" ".")))
+    (should (equal (terminal-here--term-command "foo")
+                   (list "open" "-a" "iTerm.app" ".")))))
+
 (ert-deftest custom-terminal-command-os-missing ()
   (let ((system-type 'foo)
         (terminal-here-terminal-command nil))
