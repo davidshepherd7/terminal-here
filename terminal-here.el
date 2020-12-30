@@ -218,7 +218,7 @@ buffer is not in a project."
 
    ;; Mac OS
    (cons 'terminal-app        (list "Terminal.app"))
-   (cons 'iterm2              (list "iTerm2.app"))
+   (cons 'iterm2              (list "iTerm.app"))
 
    ;; Windows
    ;; From http://stackoverflow.com/a/13509208/874671
