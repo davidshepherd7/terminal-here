@@ -76,6 +76,7 @@ Common settings:
     alacritty
     kitty
     tilix
+    foot
 
 Usually this variable should be one of the symbols listed above.
 
@@ -211,6 +212,7 @@ buffer is not in a project."
    (cons 'terminator          (list "terminator"))
    (cons 'tilix               (list "tilix"))
    (cons 'kitty               (list "kitty"))
+   (cons 'foot                (list "foot"))
 
    ;; A default which picks a terminal based on the system configuration on
    ;; Debian-based OSes (but doesn't work for other Linux OSes)
@@ -248,8 +250,8 @@ terminal-here with tramp files to create ssh connections."
    (cons 'xfce4-terminal "-x")
    (cons 'terminator     "-x")
    (cons 'tilix          "-e")
-   (cons 'kitty          "--") ; kitty doesn't need a special flag for this, but
-                                        ; we have to specify something.
+   (cons 'kitty          "--") ; kitty and foot don't need a special
+   (cons 'foot           "--") ; flag for this, but we have to specify something.
    (cons 'x-terminal-emulator "-e") ; Actually this could be anything, but -e is
                                         ; the most common option.
 
