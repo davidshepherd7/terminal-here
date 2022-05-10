@@ -71,6 +71,7 @@ Common settings:
     xfce4-terminal
     terminator
     xterm
+    sakura
     urxvt
     st
     alacritty
@@ -208,6 +209,7 @@ buffer is not in a project."
    (cons 'st                  #'terminal-here--find-and-run-st)
    (cons 'konsole             (list "konsole"))
    (cons 'xterm               (list "xterm"))
+   (cons 'sakura              (list "sakura"))
    (cons 'xfce4-terminal      (list "xfce4-terminal"))
    (cons 'terminator          (list "terminator"))
    (cons 'tilix               (list "tilix"))
@@ -247,6 +249,7 @@ terminal-here with tramp files to create ssh connections."
    (cons 'st             "-e")
    (cons 'konsole        "-e") ;; ssh seems to immediately exit with konsole
    (cons 'xterm          "-e")
+   (cons 'sakura         "-e")
    (cons 'xfce4-terminal "-x")
    (cons 'terminator     "-x")
    (cons 'tilix          "-e")
