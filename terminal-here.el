@@ -247,7 +247,7 @@ terminal-here with tramp files to create ssh connections."
    (cons 'gnome-terminal "-x")
    (cons 'alacritty      "-e")
    (cons 'st             "-e")
-   (cons 'konsole        "-e") ;; ssh seems to immediately exit with konsole
+   (cons 'konsole        "-e") ; ssh seems to immediately exit with konsole
    (cons 'xterm          "-e")
    (cons 'sakura         "-e")
    (cons 'xfce4-terminal "-x")
