@@ -98,7 +98,7 @@ the terminal.
 
 ## Changelog
 
-### Unstable
+### 2.0
 
 * Added support for simpler customisation by setting the terminal to a symbol
   from a list of supported terminal symbols.
