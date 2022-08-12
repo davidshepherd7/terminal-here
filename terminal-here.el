@@ -44,9 +44,11 @@
     (cond
      ;; Try to guess from the wide range of "standard" environment variables!
      ;; Based on xdg_util.cc.
+     ((equal xdg-current-desktop "Enlightenment") 'terminology)
      ((equal xdg-current-desktop "Unity") 'gnome-terminal)
      ((equal xdg-current-desktop "GNOME") 'gnome-terminal)
      ((equal xdg-current-desktop "KDE") 'konsole)
+     ((equal desktop-session "enlightenment") 'terminology)
      ((equal desktop-session "gnome") 'gnome-terminal)
      ((equal desktop-session "mate") 'gnome-terminal)
      ((equal desktop-session "kde4") 'konsole)
@@ -70,6 +72,7 @@ Common settings:
     konsole
     xfce4-terminal
     terminator
+    terminology
     xterm
     sakura
     urxvt
@@ -214,6 +217,7 @@ buffer is not in a project."
    (cons 'sakura              (list "sakura"))
    (cons 'xfce4-terminal      (list "xfce4-terminal"))
    (cons 'terminator          (list "terminator"))
+   (cons 'terminology         (list "terminology"))
    (cons 'tilix               (list "tilix"))
    (cons 'kitty               (list "kitty"))
    (cons 'foot                (list "foot"))
@@ -255,6 +259,7 @@ terminal-here with tramp files to create ssh connections."
    (cons 'sakura         "-e")
    (cons 'xfce4-terminal "-x")
    (cons 'terminator     "-x")
+   (cons 'terminology    "-e")
    (cons 'tilix          "-e")
    (cons 'kitty          "--") ; kitty and foot don't need a special
    (cons 'foot           "--") ; flag for this, but we have to specify something.
