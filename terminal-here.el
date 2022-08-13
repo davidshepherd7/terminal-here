@@ -49,11 +49,13 @@
      ((equal xdg-current-desktop "GNOME") 'gnome-terminal)
      ((equal xdg-current-desktop "KDE") 'konsole)
      ((equal desktop-session "enlightenment") 'terminology)
+     ((equal xdg-current-desktop "LXQt") 'qterminal)
      ((equal desktop-session "gnome") 'gnome-terminal)
      ((equal desktop-session "mate") 'gnome-terminal)
      ((equal desktop-session "kde4") 'konsole)
      ((equal desktop-session "kde-plasma") 'konsole)
      ((equal desktop-session "kde") 'konsole)
+     ((equal desktop-session "lxqt") 'qterminal)
      ((equal desktop-session "xubuntu") 'xfce-terminal)
      ((string-match-p (regexp-quote "xfce") desktop-session) 'xfce-terminal)
 
@@ -82,6 +84,7 @@ Common settings:
     kitty
     tilix
     foot
+    qterminal
 
 Usually this variable should be one of the symbols listed above.
 
@@ -213,6 +216,7 @@ buffer is not in a project."
    (cons 'xst                 (list "xst"))
    (cons 'st                  #'terminal-here--find-and-run-st)
    (cons 'konsole             (list "konsole"))
+   (cons 'qterminal           (list "qterminal"))
    (cons 'xterm               (list "xterm"))
    (cons 'sakura              (list "sakura"))
    (cons 'xfce4-terminal      (list "xfce4-terminal"))
@@ -255,6 +259,7 @@ terminal-here with tramp files to create ssh connections."
    (cons 'xst            "-e") ; popular st fork
    (cons 'st             "-e")
    (cons 'konsole        "-e") ; ssh seems to immediately exit with konsole
+   (cons 'qterminal      "-e")
    (cons 'xterm          "-e")
    (cons 'sakura         "-e")
    (cons 'xfce4-terminal "-x")
