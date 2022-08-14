@@ -49,6 +49,7 @@
      ((equal xdg-current-desktop "KDE") 'konsole)
      ((equal xdg-current-desktop "LXQt") 'qterminal)
      ((equal xdg-current-desktop "Unity") 'gnome-terminal)
+     ((equal xdg-current-desktop "XFCE") 'xfce4-terminal)
      ((equal desktop-session "enlightenment") 'terminology)
      ((equal desktop-session "gnome") 'gnome-terminal)
      ((equal desktop-session "kde") 'konsole)
