@@ -98,6 +98,10 @@ the terminal.
 
 ## Changelog
 
+### Unstable
+
+* Add the custom variable `terminal-here-verbose` to provide more debugging information.
+
 ### 2.0
 
 * Added support for simpler customisation by setting the terminal to a symbol

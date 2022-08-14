@@ -128,6 +128,11 @@
 (ert-deftest custom-command-flag-customization ()
   (validate-setq terminal-here-command-flag "-k"))
 
+(ert-deftest custom-verboseness ()
+  (validate-setq terminal-here-verbose t)
+  (should-error (validate-setq terminal-here-verbose "yes"))
+  (custom-reevaluate-setting 'terminal-here-verbose))
+
 (ert-deftest custom-command-flag-os-then-command-table-lookup ()
   (let ((terminal-here-command-flag nil)
         (system-type 'gnu/linux)

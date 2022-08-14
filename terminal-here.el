@@ -283,8 +283,10 @@ instead of this table."
                        (choice (repeat string)
                                (function)))))
 
-(defvar terminal-here--verbose nil
-  "Print commands before they are run.")
+(defcustom terminal-here-verbose nil
+  "Print commands before they are run."
+  :group 'terminal-here
+  :type 'boolean)
 
 
 
@@ -401,16 +403,18 @@ Handles tramp paths sensibly."
                  (or (terminal-here-maybe-tramp-path-to-directory dir) dir)))
 
 (defun terminal-here--run-command (command dir)
-  (when terminal-here--verbose
-    (message "Running %s with default-directory %s" command dir))
+  (when terminal-here-verbose
+    (message "Running `%s` with default-directory `%s`" (mapconcat #'identity command " ") dir))
   (let* ((default-directory dir)
          (process-name (car command))
          (proc (apply #'start-process process-name nil command)))
     (set-process-sentinel
      proc
      (lambda (proc _)
-       (when (and (eq (process-status proc) 'exit) (/= (process-exit-status proc) 0))
-         (message "Error: in terminal here, command `%s` exited with error code %d"
+       (when (and (eq (process-status proc) 'exit)
+                  (or (/= (process-exit-status proc) 0)
+                      terminal-here-verbose))
+         (message "In terminal here, command `%s` exited with error code %d"
                   (mapconcat #'identity command " ")
                   (process-exit-status proc)))))
     ;; Don't close when emacs closes, seems to only be necessary on Windows.
