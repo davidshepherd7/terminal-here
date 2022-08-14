@@ -56,8 +56,8 @@
      ((equal desktop-session "kde4") 'konsole)
      ((equal desktop-session "lxqt") 'qterminal)
      ((equal desktop-session "mate") 'gnome-terminal)
-     ((equal desktop-session "xubuntu") 'xfce-terminal)
-     ((string-match-p (regexp-quote "xfce") desktop-session) 'xfce-terminal)
+     ((equal desktop-session "xubuntu") 'xfce4-terminal)
+     ((string-match-p (regexp-quote "xfce") desktop-session) 'xfce4-terminal)
 
      ;; We've failed, hopefully we're on a Debian-based OS so that we can use this
      ((executable-find "x-terminal-emulator") 'x-terminal-emulator))))
