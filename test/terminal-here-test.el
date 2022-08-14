@@ -123,10 +123,11 @@
   (validate-setq terminal-here-linux-terminal-command (list "1" "2" "3"))
   (validate-setq terminal-here-linux-terminal-command (lambda (dir) (list "1" "2" "3" dir)))
   (should-error (validate-setq terminal-here-terminal-command "astring") :type 'user-error)
-  )
+  (custom-reevaluate-setting 'terminal-here-linux-terminal-command))
 
 (ert-deftest custom-command-flag-customization ()
-  (validate-setq terminal-here-command-flag "-k"))
+  (validate-setq terminal-here-command-flag "-k")
+  (custom-reevaluate-setting 'terminal-here-command-flag))
 
 (ert-deftest custom-verboseness ()
   (validate-setq terminal-here-verbose t)
@@ -162,30 +163,30 @@
 
 
 (ert-deftest no-project-root-function ()
-  (validate-setq terminal-here-project-root-function nil)
-  (cl-letf (((symbol-function #'projectile-project-root) nil)
+  (cl-letf ((terminal-here-project-root-function nil)
+            ((symbol-function #'projectile-project-root) nil)
             ((symbol-function #'vc-root-dir) nil))
     (should-error (terminal-here-project-launch) :type 'user-error)))
 
 (ert-deftest default-project-root-function ()
-  (validate-setq terminal-here-project-root-function nil)
-  (cl-letf (((symbol-function #'projectile-project-root) (lambda () "" "projectile-root"))
+  (cl-letf ((terminal-here-project-root-function nil)
+            ((symbol-function #'projectile-project-root) (lambda () "" "projectile-root"))
             ((symbol-function #'vc-root-dir) nil))
     (with-terminal-here-mocks
      (mock (terminal-here-launch-in-directory "projectile-root"))
      (terminal-here-project-launch))))
 
 (ert-deftest with-project-root-function ()
-  (let ((project-root-finder (lambda () "" "vc-root"))
-        (terminal-here-terminal-command '("x-terminal-emulator")))
-    (validate-setq terminal-here-project-root-function project-root-finder)
+  (let* ((project-root-finder (lambda () "" "vc-root"))
+         (terminal-here-terminal-command '("x-terminal-emulator"))
+         (terminal-here-project-root-function project-root-finder))
     (with-terminal-here-mocks
      (mock (terminal-here--run-command * "vc-root"))
      (terminal-here-project-launch))))
 
 (ert-deftest project-root-finds-nothing ()
-  (validate-setq terminal-here-project-root-function (lambda () nil))
-  (should-error (terminal-here-project-launch :type 'user-error)))
+  (let ((terminal-here-project-root-function (lambda () nil)))
+    (should-error (terminal-here-project-launch :type 'user-error))))
 
 
 
@@ -216,11 +217,11 @@
 
 (ert-deftest ssh-tramp ()
   (cl-letf* ((launch-command nil)
+             (terminal-here-command-flag "-k")
              (terminal-here-terminal-command '("x-terminal-emulator"))
              ((symbol-function 'terminal-here--run-command)
               (lambda (command _dir)
                 (setq launch-command command))))
-    (validate-setq terminal-here-command-flag "-k")
     (terminal-here-launch-in-directory "/ssh:david@pi:/home/pi/")
     (should (equal (car launch-command) "x-terminal-emulator"))
     (should (equal (cadr launch-command) "-k"))
