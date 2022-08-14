@@ -45,17 +45,17 @@
      ;; Try to guess from the wide range of "standard" environment variables!
      ;; Based on xdg_util.cc.
      ((equal xdg-current-desktop "Enlightenment") 'terminology)
-     ((equal xdg-current-desktop "Unity") 'gnome-terminal)
      ((equal xdg-current-desktop "GNOME") 'gnome-terminal)
      ((equal xdg-current-desktop "KDE") 'konsole)
-     ((equal desktop-session "enlightenment") 'terminology)
      ((equal xdg-current-desktop "LXQt") 'qterminal)
+     ((equal xdg-current-desktop "Unity") 'gnome-terminal)
+     ((equal desktop-session "enlightenment") 'terminology)
      ((equal desktop-session "gnome") 'gnome-terminal)
-     ((equal desktop-session "mate") 'gnome-terminal)
-     ((equal desktop-session "kde4") 'konsole)
-     ((equal desktop-session "kde-plasma") 'konsole)
      ((equal desktop-session "kde") 'konsole)
+     ((equal desktop-session "kde-plasma") 'konsole)
+     ((equal desktop-session "kde4") 'konsole)
      ((equal desktop-session "lxqt") 'qterminal)
+     ((equal desktop-session "mate") 'gnome-terminal)
      ((equal desktop-session "xubuntu") 'xfce-terminal)
      ((string-match-p (regexp-quote "xfce") desktop-session) 'xfce-terminal)
 
