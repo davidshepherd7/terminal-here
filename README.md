@@ -101,6 +101,9 @@ the terminal.
 ### Unstable
 
 * Add the custom variable `terminal-here-verbose` to provide more debugging information.
+* Fix xfce terminal using the wrong name.
+* Add support for some additional terminals on Linux.
+
 
 ### 2.0
 
