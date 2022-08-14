@@ -56,7 +56,7 @@ anywhere with some customisation.
 
 Out-of-the-box support tested on:
 
-* Ubuntu 16.04 (but should work identically on any Debian-based system)
+* Ubuntu (but should work identically on any Debian-based system)
 * Windows 10
 * OSX
 
@@ -91,7 +91,7 @@ can be used instead of the OS-specific variables listed above. If set it will
 override other settings.
 
 To support more complex terminals or selecting a terminal at runtime: you can
-set and of the custom variables to a function which accepts a launch directory
+set any of the `*-terminal-command` variables to a function which accepts a launch directory
 argument and returns a list of strings specifying the command line which runs
 the terminal.
 
