@@ -295,11 +295,6 @@ instead of this table."
 (defun terminal-here--non-function-symbol-p (x)
   (and (symbolp x) (not (functionp x))))
 
-(defun terminal-here--per-os-command-table-p (x)
-  (and (listp x)
-       (consp (car x))
-       (terminal-here--non-function-symbol-p (caar x))))
-
 (defun terminal-here--os-terminal-command ()
   (or
    terminal-here-terminal-command
