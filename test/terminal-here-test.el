@@ -22,7 +22,7 @@
 
 (ert-deftest terminal-here-launch-alias ()
   (with-terminal-here-mocks
-   (mock (terminal-here-launch-in-directory *))
+   (mock (terminal-here-launch-in-directory * *))
    (terminal-here)))
 
 (ert-deftest linux-default-command-debian-no-de ()
@@ -32,7 +32,7 @@
    (let ((system-type 'gnu/linux))
      (custom-reevaluate-setting 'terminal-here-terminal-command)
      (custom-reevaluate-setting 'terminal-here-linux-terminal-command)
-     (should (equal (terminal-here--term-command "adir")
+     (should (equal (terminal-here--get-terminal-command "adir")
                     '("x-terminal-emulator"))))))
 
 (ert-deftest linux-default-command-gnome-de ()
@@ -41,7 +41,7 @@
    (let ((system-type 'gnu/linux))
      (custom-reevaluate-setting 'terminal-here-terminal-command)
      (custom-reevaluate-setting 'terminal-here-linux-terminal-command)
-     (should (equal (terminal-here--term-command "adir")
+     (should (equal (terminal-here--get-terminal-command "adir")
                     '("gnome-terminal"))))))
 
 (ert-deftest linux-default-command-weird-os ()
@@ -58,63 +58,63 @@
   (let ((system-type 'darwin))
     (custom-reevaluate-setting 'terminal-here-terminal-command)
     (custom-reevaluate-setting 'terminal-here-mac-terminal-command)
-    (should (equal (terminal-here--term-command "adir")
+    (should (equal (terminal-here--get-terminal-command "adir")
                    '("open" "-a" "Terminal.app" "." "--args")))))
 
 (ert-deftest windows-default-command ()
   (let ((system-type 'windows-nt))
     (custom-reevaluate-setting 'terminal-here-terminal-command)
     (custom-reevaluate-setting 'terminal-here-windows-terminal-command)
-    (should (equal (terminal-here--term-command "adir")
+    (should (equal (terminal-here--get-terminal-command "adir")
                    '("cmd.exe" "/C" "start" "cmd.exe")))))
 
 (ert-deftest no-terminal-for-os-found ()
   (let ((system-type 'foo))
     (custom-reevaluate-setting 'terminal-here-terminal-command)
     (should-error
-     (terminal-here--term-command "adir")
+     (terminal-here--get-terminal-command "adir")
      :type 'user-error)))
 
 
 
 (ert-deftest custom-terminal-command-as-list ()
   (let ((terminal-here-terminal-command '("1" "2" "3")))
-    (should (equal (terminal-here--term-command "adir")
+    (should (equal (terminal-here--get-terminal-command "adir")
                    '("1" "2" "3")))))
 
 (ert-deftest custom-terminal-command-as-function ()
   (let ((terminal-here-terminal-command (lambda (dir) (list "1" "2" "3" dir))))
-    (should (equal (terminal-here--term-command "adir")
+    (should (equal (terminal-here--get-terminal-command "adir")
                    '("1" "2" "3" "adir")))))
 
 (ert-deftest custom-terminal-command-legacy-setting-overrides-os-specific ()
   (let ((terminal-here-mac-terminal-command 'iterm2)
         (system-type 'darwin)
         (terminal-here-terminal-command nil))
-    (should (equal (terminal-here--term-command "foo")
+    (should (equal (terminal-here--get-terminal-command "foo")
                    (list "open" "-a" "iTerm.app" "." "--args")))))
 
 (ert-deftest dont-add-open-to-mac-command-twice ()
   (let ((terminal-here-mac-terminal-command nil)
         (system-type 'darwin)
         (terminal-here-terminal-command '("open" "-a" "iTerm.app" ".")))
-    (should (equal (terminal-here--term-command "foo")
+    (should (equal (terminal-here--get-terminal-command "foo")
                    (list "open" "-a" "iTerm.app" ".")))))
 
 (ert-deftest custom-terminal-command-os-missing ()
   (let ((system-type 'foo)
         (terminal-here-terminal-command nil))
-    (should-error (terminal-here--term-command "foo") :type 'user-error)))
+    (should-error (terminal-here--get-terminal-command "foo") :type 'user-error)))
 
 (ert-deftest custom-terminal-command-as-symbol-lookup ()
   (let ((terminal-here-terminal-command 'iterm2)
         (system-type 'darwin))
-    (should (equal (terminal-here--term-command "foo")
+    (should (equal (terminal-here--get-terminal-command "foo")
                    (list "open" "-a" "iTerm.app" "." "--args")))))
 
 (ert-deftest custom-terminal-command-as-symbol-not-in-table ()
   (let ((terminal-here-terminal-command 'foo))
-    (should-error (terminal-here--term-command "adir") :type 'user-error)))
+    (should-error (terminal-here--get-terminal-command "adir") :type 'user-error)))
 
 (ert-deftest custom-terminal-command-customization ()
   (validate-setq terminal-here-terminal-command (list "1" "2" "3"))
@@ -173,7 +173,7 @@
             ((symbol-function #'projectile-project-root) (lambda () "" "projectile-root"))
             ((symbol-function #'vc-root-dir) nil))
     (with-terminal-here-mocks
-     (mock (terminal-here-launch-in-directory "projectile-root"))
+     (mock (terminal-here-launch-in-directory "projectile-root" nil))
      (terminal-here-project-launch))))
 
 (ert-deftest with-project-root-function ()
@@ -226,3 +226,25 @@
     (should (equal (car launch-command) "x-terminal-emulator"))
     (should (equal (cadr launch-command) "-k"))
     (should (equal (caddr launch-command) "ssh"))))
+
+
+
+;; TODO: better name for custom commands?
+
+(ert-deftest custom-command-integration-test ()
+  (let ((terminal-here-terminal-command '("urxvt"))
+        (terminal-here-command-flag "-k"))
+    (with-terminal-here-mocks
+     (mock (start-process "urxvt" * "urxvt" "-k" "htop" "-x" "-y"))
+     (terminal-here-launch-in-directory "adir" (list "htop" "-x" "-y")))))
+
+(ert-deftest custom-command-with-ssh-unsupported ()
+  (should-error
+   (terminal-here-launch-in-directory "/ssh:david@pi:/home/pi/" (list "htop" "-x" "-y"))))
+
+(ert-deftest custom-command-with-sudo-tramp-works ()
+  (let ((terminal-here-terminal-command '("urxvt"))
+        (terminal-here-command-flag "-k"))
+    (with-terminal-here-mocks
+     (mock (start-process "urxvt" * "urxvt" "-k" "htop" "-x" "-y"))
+     (terminal-here-launch-in-directory "/sudo:root@127.0.0.1:/etc/emacs/" (list "htop" "-x" "-y")))))

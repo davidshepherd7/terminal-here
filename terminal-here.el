@@ -24,11 +24,6 @@
 ;; name parsing. I'm not sure if that's possible though.
 (require 'tramp)
 
-;; TODO: readme updates, v2?
-
-;; TODO ssh support on Mac OS?
-
-;; TODO try to fix Konsole ssh
 
 
 
@@ -343,12 +338,6 @@ instead of this table."
          flag)))
    (user-error "Couldn't work out how to run an ssh command in your terminal, customize `terminal-here-command-flag' or set `terminal-here-terminal-command' to specify your terminal by symbol")))
 
-(defun terminal-here--term-command (dir)
-  (let ((ssh-data (terminal-here--parse-ssh-dir dir)))
-    (if ssh-data
-        (terminal-here--ssh-command (car ssh-data) (cadr ssh-data))
-      (terminal-here--get-terminal-command dir))))
-
 
 
 ;;; Individual terminals
@@ -366,36 +355,49 @@ instead of this table."
     (with-parsed-tramp-file-name dir nil
       (list (if user (concat user "@" host) host) localname))))
 
-(defun terminal-here--ssh-command (remote dir)
-  (append (terminal-here--term-command "") (list (terminal-here--get-command-flag) "ssh" "-t" remote
-                                    "cd" (shell-quote-argument dir) "&&" "exec" "$SHELL" "-")))
+(defun terminal-here--ssh-command (ssh-data)
+  (let ((remote (car ssh-data))
+        (dir (cadr ssh-data)))
+    (append (terminal-here--get-terminal-command "")
+            (list (terminal-here--get-command-flag) "ssh" "-t" remote
+                  "cd" (shell-quote-argument dir) "&&" "exec" "$SHELL" "-"))))
 
-(defun terminal-here-maybe-tramp-path-to-directory (dir)
+(defun terminal-here--tramp-path-to-directory (dir)
   "Extract the local part of a local tramp path.
 
 Given a tramp path returns the local part, otherwise returns
 nil."
-  (when (tramp-tramp-file-p dir)
-    (let ((file-name-struct (tramp-dissect-file-name dir)))
-      (cond
-       ;; sudo: just strip the extra tramp stuff
-       ((equal (tramp-file-name-method file-name-struct) "sudo")
-        (tramp-file-name-localname file-name-struct))
-       ;; ssh: run with a custom command handled later
-       ((equal (tramp-file-name-method file-name-struct) "ssh") dir)
-       (t (user-error "Terminal here cannot currently handle tramp files other than sudo and ssh"))))))
+  (let ((file-name-struct (tramp-dissect-file-name dir)))
+    (cond
+     ;; sudo: just strip the extra tramp stuff
+     ((equal (tramp-file-name-method file-name-struct) "sudo")
+      (tramp-file-name-localname file-name-struct))
+     ;; ssh: run with a custom command handled later
+     ((equal (tramp-file-name-method file-name-struct) "ssh") dir)
+     (t (user-error "Terminal here cannot currently handle tramp files other than sudo and ssh")))))
 
 
 
 
 ;;; Launching
 
-(defun terminal-here-launch-in-directory (dir)
+(defun terminal-here-launch-in-directory (dir &optional inner-command)
   "Launch a terminal in directory DIR.
 
 Handles tramp paths sensibly."
-  (terminal-here--run-command (terminal-here--term-command dir)
-                 (or (terminal-here-maybe-tramp-path-to-directory dir) dir)))
+  (let* ((local-dir (if (tramp-tramp-file-p dir) (terminal-here--tramp-path-to-directory dir) dir))
+         (ssh-data (terminal-here--parse-ssh-dir dir))
+         (terminal-command (if ssh-data
+                               (terminal-here--ssh-command ssh-data)
+                             (terminal-here--get-terminal-command local-dir))))
+    (when (and ssh-data inner-command)
+      (user-error "Custom commands are not currently supported over ssh."))
+
+    (terminal-here--run-command
+     (append terminal-command
+             (when inner-command (list (terminal-here--get-command-flag)))
+             inner-command)
+     local-dir)))
 
 (defun terminal-here--run-command (command dir)
   (when terminal-here-verbose
@@ -416,19 +418,19 @@ Handles tramp paths sensibly."
     (set-process-query-on-exit-flag proc nil)))
 
 ;;;###autoload
-(defun terminal-here-launch ()
+(defun terminal-here-launch (&optional inner-command)
   "Launch a terminal in the current working directory.
 
 This is the directory of the current buffer unless you have
 changed it by running `cd'."
   (interactive)
-  (terminal-here-launch-in-directory default-directory))
+  (terminal-here-launch-in-directory default-directory inner-command))
 
 ;;;###autoload
 (defalias 'terminal-here 'terminal-here-launch)
 
 ;;;###autoload
-(defun terminal-here-project-launch ()
+(defun terminal-here-project-launch (&optional inner-command)
   "Launch a terminal in the current project root.
 
 Uses `terminal-here-project-root-function' to determine the
@@ -441,7 +443,7 @@ project root."
          (root (funcall real-project-root-function)))
     (when (not root)
       (user-error "Not in any project according to `terminal-here-project-root-function'"))
-    (terminal-here-launch-in-directory root)))
+    (terminal-here-launch-in-directory root inner-command)))
 
 
 
@@ -460,3 +462,21 @@ project root."
 ;;   (set symbl (eval (car (get symbl 'standard-value)))))
 ;; (ds/custom-reset-var 'terminal-here-terminal-command-table)
 ;; (ds/custom-reset-var 'terminal-here-command-flag-table)
+
+
+;; ;; Handy code for manually QA-ing things
+
+;; (terminal-here-launch (list "htop"))
+;; (terminal-here-launch (list "less" (buffer-file-name)))
+;; (terminal-here-launch (list (getenv "SHELL") "-c" "ls && exec $SHELL"))
+
+;; ;; These only work if you have the right directories with venvs in them:
+;; (let ((default-directory "~/code/monorepo")
+;;       (buffer-file-name "~/code/monorepo/README.md"))
+;;   (terminal-here-launch (list (getenv "SHELL") "-c" "source .root-venv/bin/activate && exec $SHELL")))
+
+;; (let ((default-directory "~/code/monorepo")
+;;       (buffer-file-name "~/code/monorepo/README.md"))
+;;   (terminal-here-launch (list "bash" "-c" "source .root-venv/bin/activate && exec bash")))
+
+;; (progn (find-file "/ssh:aws:/home/ec2-user/test") (terminal-here-launch))
