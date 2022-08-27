@@ -306,7 +306,7 @@ instead of this table."
      terminal-here-windows-terminal-command)
    (user-error "No terminal configuration found for OS %s" system-type)))
 
-(defun terminal-here--maybe-lookup-in-command-table (term-spec)
+(defun terminal-here--maybe-lookup-in-terminal-command-table (term-spec)
   (if (not (terminal-here--non-function-symbol-p term-spec))
       term-spec
     (let ((terminal-command (alist-get term-spec terminal-here-terminal-command-table)))
@@ -319,16 +319,16 @@ instead of this table."
       x
     (funcall x dir)))
 
-(defun terminal-here--maybe-add-mac-os-open (command)
+(defun terminal-here--maybe-add-mac-os-open (terminal-command)
   "On Mac OS we use the open command to run the terminal in `default-directory'."
   (if (and (equal system-type 'darwin)
-           (not (equal (car command) "open")))
-      (append (list "open" "-a" (car command) "." "--args") (cdr command))
-    command))
+           (not (equal (car terminal-command) "open")))
+      (append (list "open" "-a" (car terminal-command) "." "--args") (cdr terminal-command))
+    terminal-command))
 
 (defun terminal-here--get-terminal-command (dir)
   (thread-last (terminal-here--os-terminal-command)
-    (terminal-here--maybe-lookup-in-command-table)
+    (terminal-here--maybe-lookup-in-terminal-command-table)
     (terminal-here--maybe-funcall dir)
     (terminal-here--maybe-add-mac-os-open)))
 
