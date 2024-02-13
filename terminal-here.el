@@ -33,7 +33,8 @@
   :prefix "terminal-here-")
 
 (defun terminal-here--pick-linux-default ()
-  "Inspect environment variables to try to figure out what kind of Linux this is and pick a sensible terminal."
+  "Inspect environment variables to try to figure out what kind of
+Linux this is and pick a sensible terminal."
   (let ((xdg-current-desktop (or (getenv "XDG_CURRENT_DESKTOP") ""))
         (desktop-session (or (getenv "DESKTOP_SESSION") "")))
     (cond
@@ -179,7 +180,8 @@ launch directory and returns a list of strings to pass to
 
 (defcustom terminal-here-command-flag
   nil
-  "The flag to tell your terminal to treat the rest of the line as a command to run.
+  "The flag to tell your terminal to treat the rest of the line as a
+command to run.
 
 You should not normally need to set this variable.
 
@@ -269,7 +271,8 @@ terminal-here with tramp files to create ssh connections."
 
    ;; I don't know how to do this on any Mac or Windows terminals! PRs please!
    )
-  "A table of flags to tell terminals to use the rest of the line as a command to run.
+  "A table of flags to tell terminals to use the rest of the line as
+a command to run.
 
 If `terminal-here-command-flag' is set then it will be used
 instead of this table."
@@ -343,7 +346,8 @@ instead of this table."
 ;;; Individual terminals
 
 (defun terminal-here--find-and-run-st (_)
-  "Suckless term can either be called st or stterm depending on how it was installed."
+  "Suckless term can either be called st or stterm depending on how
+it was installed."
   (if (executable-find "stterm") '("stterm") '("st")))
 
 
