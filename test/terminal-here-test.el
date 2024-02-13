@@ -4,6 +4,10 @@
 (require 'terminal-here)
 (require 'validate)
 
+;; Don't load old byte-compiled versions!
+(setq load-prefer-newer t)
+
+
 (defmacro with-terminal-here-mocks (&rest body)
   "Stub out some process interaction functions"
   `(with-mock
