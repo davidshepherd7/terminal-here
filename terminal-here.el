@@ -20,13 +20,6 @@
 (require 'cl-lib)
 (require 'subr-x)
 
-;; TODO: it would be nice not to need to load all of tramp just for the file
-;; name parsing. I'm not sure if that's possible though.
-(require 'tramp)
-
-
-
-
 (defgroup terminal-here nil
   "Open external terminal emulators in current buffer's directory."
   :group 'external
@@ -355,8 +348,10 @@ it was installed."
 ;;; Tramp/ssh support
 
 (defun terminal-here--parse-ssh-dir (dir)
-  (when (string-prefix-p "/ssh:" dir)
-    (with-parsed-tramp-file-name dir nil
+  (when (equal (file-remote-p dir 'method) "ssh")
+    (let ((user (file-remote-p dir 'user))
+	  (host (file-remote-p dir 'host))
+	  (localname (file-remote-p dir 'localname)))
       (list (if user (concat user "@" host) host) localname))))
 
 (defun terminal-here--ssh-command (ssh-data)
@@ -371,13 +366,12 @@ it was installed."
 
 Given a tramp path returns the local part, otherwise returns
 nil."
-  (let ((file-name-struct (tramp-dissect-file-name dir)))
+  (let ((method (file-remote-p dir 'method)))
     (cond
      ;; sudo: just strip the extra tramp stuff
-     ((equal (tramp-file-name-method file-name-struct) "sudo")
-      (tramp-file-name-localname file-name-struct))
+     ((equal method "sudo") (file-remote-p dir 'localname))
      ;; ssh: run with a custom command handled later
-     ((equal (tramp-file-name-method file-name-struct) "ssh") dir)
+     ((equal method "ssh") dir)
      (t (user-error "Terminal here cannot currently handle tramp files other than sudo and ssh")))))
 
 
@@ -389,7 +383,7 @@ nil."
   "Launch a terminal in directory DIR.
 
 Handles tramp paths sensibly."
-  (let* ((local-dir (if (tramp-tramp-file-p dir) (terminal-here--tramp-path-to-directory dir) dir))
+  (let* ((local-dir (if (file-remote-p dir) (terminal-here--tramp-path-to-directory dir) dir))
          (ssh-data (terminal-here--parse-ssh-dir dir))
          (terminal-command (if ssh-data
                                (terminal-here--ssh-command ssh-data)
