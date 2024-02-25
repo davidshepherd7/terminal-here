@@ -203,6 +203,9 @@ buffer is not in a project."
    ;; Linux
    (cons 'urxvt               (list "urxvt"))
    (cons 'gnome-terminal      (list "gnome-terminal"))
+   ;; A newish gnome terminal alternative, the strange name seems to be here to
+   ;; stay https://gitlab.gnome.org/GNOME/console/-/issues/119
+   (cons 'gnome-console       (list "kgx")) 
    (cons 'alacritty           (list "alacritty"))
    (cons 'xst                 (list "xst"))
    (cons 'st                  #'terminal-here--find-and-run-st)
@@ -246,6 +249,7 @@ terminal-here with tramp files to create ssh connections."
   (list
    (cons 'urxvt          "-e")
    (cons 'gnome-terminal "-x")
+   (cons 'gnome-console  "-e")
    (cons 'alacritty      "-e")
    (cons 'xst            "-e") ; popular st fork
    (cons 'st             "-e")
