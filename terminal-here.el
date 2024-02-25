@@ -40,7 +40,8 @@ Linux this is and pick a sensible terminal."
           (equal desktop-session "gnome")
           (equal desktop-session "mate")
           (equal xdg-current-desktop "Unity"))
-      'gnome-terminal)
+      ;; Gnome has two possible terminals these days
+      (if (executable-find "kgx") 'gnome-console 'gnome-terminal))
      ((or (equal xdg-current-desktop "KDE")
           (equal desktop-session "kde")
           (equal desktop-session "kde-plasma")

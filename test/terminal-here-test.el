@@ -48,6 +48,16 @@
      (should (equal (terminal-here--get-terminal-command "adir")
                     '("gnome-terminal"))))))
 
+(ert-deftest linux-default-command-gnome-de-with-gnome-console ()
+  (with-mock
+   (stub getenv => "GNOME")
+   (stub executable-find => "/bin/kgx")
+   (let ((system-type 'gnu/linux))
+     (custom-reevaluate-setting 'terminal-here-terminal-command)
+     (custom-reevaluate-setting 'terminal-here-linux-terminal-command)
+     (should (equal (terminal-here--get-terminal-command "adir")
+                    '("kgx"))))))
+
 (ert-deftest linux-default-command-weird-os ()
   (with-mock
    (stub getenv => nil)
