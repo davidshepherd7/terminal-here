@@ -409,7 +409,7 @@ Handles tramp paths sensibly."
 
 (defun terminal-here--run-command (command dir)
   (when terminal-here-verbose
-    (message "Running `%s` with default-directory `%s`" (mapconcat #'identity command " ") dir))
+    (message "Running `%s` with default-directory `%s`" (string-join command " ") dir))
   (let* ((default-directory dir)
          (process-name (car command))
          (proc (apply #'start-process process-name nil command)))
@@ -420,7 +420,7 @@ Handles tramp paths sensibly."
                   (or (/= (process-exit-status proc) 0)
                       terminal-here-verbose))
          (message "In terminal here, command `%s` exited with error code %d"
-                  (mapconcat #'identity command " ")
+                  (string-join command " ")
                   (process-exit-status proc)))))
     ;; Don't close when emacs closes, seems to only be necessary on Windows.
     (set-process-query-on-exit-flag proc nil)))
