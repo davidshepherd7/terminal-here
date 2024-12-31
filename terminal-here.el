@@ -80,6 +80,7 @@ Common settings:
     kitty
     tilix
     foot
+    ghostty
     qterminal
 
 Usually this variable should be one of the symbols listed above.
@@ -225,6 +226,7 @@ buffer is not in a project."
    (cons 'tilix               (list "tilix"))
    (cons 'kitty               (list "kitty"))
    (cons 'foot                (list "foot"))
+   (cons 'ghostty             (list "ghostty"))
 
    ;; A default which picks a terminal based on the system configuration on
    ;; Debian-based OSes (but doesn't work for other Linux OSes)
@@ -269,6 +271,7 @@ terminal-here with tramp files to create ssh connections."
    (cons 'tilix          "-e")
    (cons 'kitty          "--") ; kitty and foot don't need a special
    (cons 'foot           "--") ; flag for this, but we have to specify something.
+   (cons 'ghostty        "-e")
    (cons 'x-terminal-emulator "-e") ; Actually this could be anything, but -e is
                                         ; the most common option.
 
