@@ -1,4 +1,4 @@
-name: CI
+name: Manual QA macos
 on:
   workflow_dispatch:
 jobs:
