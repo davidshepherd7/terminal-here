@@ -104,6 +104,12 @@
     (should (equal (terminal-here--get-terminal-command "adir")
                    '("1" "2" "3" "adir")))))
 
+(ert-deftest custom-terminal-command-as-list-macos ()
+  (let ((terminal-here-terminal-command '("kitty" "--start-as=maximized"))
+        (system-type 'darwin))
+    (should (equal (terminal-here--get-terminal-command "foo")
+                   (list "open" "-a" "kitty" "." "--args" "--start-as=maximized")))))
+
 (ert-deftest custom-terminal-command-legacy-setting-overrides-os-specific ()
   (let ((terminal-here-mac-terminal-command 'iterm2)
         (system-type 'darwin)
@@ -253,6 +259,14 @@
         (terminal-here-command-flag "-k"))
     (with-terminal-here-mocks
      (mock (start-process "urxvt" * "urxvt" "-k" "htop" "-x" "-y"))
+     (terminal-here-launch-in-directory "adir" (list "htop" "-x" "-y")))))
+
+(ert-deftest custom-command-integration-test-macos ()
+  (let ((terminal-here-terminal-command '("kitty" "--start-as=maximized"))
+        (terminal-here-command-flag "--")
+        (system-type 'darwin))
+    (with-terminal-here-mocks
+     (mock (start-process * * "open" "-a" "kitty" "." "--args" "--start-as=maximized" "--" "htop" "-x" "-y"))
      (terminal-here-launch-in-directory "adir" (list "htop" "-x" "-y")))))
 
 (ert-deftest custom-command-with-ssh-unsupported ()
