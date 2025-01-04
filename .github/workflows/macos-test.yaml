@@ -6,11 +6,6 @@ jobs:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v3
-      
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: actions/checkout@v4
       
     - uses: purcell/setup-emacs@master
       with:
@@ -24,3 +19,6 @@ jobs:
         
     - name: Build
       run: PATH="/home/runner/.cask/bin:$PATH" make build
+      
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
