@@ -7,18 +7,18 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       
-    - uses: purcell/setup-emacs@master
-      with:
-        version: 29.4
+    # - uses: purcell/setup-emacs@master
+    #   with:
+    #     version: 29.4
           
-    - name: Install Cask
-      run: curl -fsSL https://raw.githubusercontent.com/cask/cask/master/go | python
+    # - name: Install Cask
+    #   run: curl -fsSL https://raw.githubusercontent.com/cask/cask/master/go | python
         
-    - name: Install dependencies
-      run: PATH="/home/runner/.cask/bin:$PATH" make install
+    # - name: Install dependencies
+    #   run: PATH="/home/runner/.cask/bin:$PATH" make install
         
-    - name: Build
-      run: PATH="/home/runner/.cask/bin:$PATH" make build
+    # - name: Build
+    #   run: PATH="/home/runner/.cask/bin:$PATH" make build
       
     - name: Setup tmate session
       uses: mxschmitt/action-tmate@v3
