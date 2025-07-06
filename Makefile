@@ -14,7 +14,7 @@ clean :
 	@rm -f *.elc
 
 test: build
-	cask emacs --batch -L . -L test -l terminal-here-test.el -f ert-run-tests-batch
+	cask emacs --batch -L . -L test -l terminal-here-test.el -f ert-run-tests-batch-and-exit
 
 install:
 	cask install
