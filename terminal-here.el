@@ -41,7 +41,9 @@ Linux this is and pick a sensible terminal."
           (equal desktop-session "mate")
           (equal xdg-current-desktop "Unity"))
       ;; Gnome has three possible terminals these days
-      (if (executable-find "kgx") 'gnome-console 'gnome-terminal 'ptyxis))
+      (cond ((executable-find "kgx") 'gnome-console)
+            ((executable-find "ptyxis") 'ptyxis)
+            (t 'gnome-terminal)))
      ((or (equal xdg-current-desktop "KDE")
           (equal desktop-session "kde")
           (equal desktop-session "kde-plasma")
