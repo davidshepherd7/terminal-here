@@ -40,8 +40,8 @@ Linux this is and pick a sensible terminal."
           (equal desktop-session "gnome")
           (equal desktop-session "mate")
           (equal xdg-current-desktop "Unity"))
-      ;; Gnome has two possible terminals these days
-      (if (executable-find "kgx") 'gnome-console 'gnome-terminal))
+      ;; Gnome has three possible terminals these days
+      (if (executable-find "kgx") 'gnome-console 'gnome-terminal 'ptyxis))
      ((or (equal xdg-current-desktop "KDE")
           (equal desktop-session "kde")
           (equal desktop-session "kde-plasma")
@@ -67,6 +67,7 @@ setting.
 
 Common settings:
     gnome-terminal
+    ptyxis
     konsole
     xfce4-terminal
     terminator
@@ -214,6 +215,7 @@ buffer is not in a project."
    ;; A newish gnome terminal alternative, the strange name seems to be here to
    ;; stay https://gitlab.gnome.org/GNOME/console/-/issues/119
    (cons 'gnome-console       (list "kgx")) 
+   (cons 'ptyxis              (list "ptyxis" "--new-window"))
    (cons 'alacritty           (list "alacritty"))
    (cons 'xst                 (list "xst"))
    (cons 'st                  #'terminal-here--find-and-run-st)
@@ -260,6 +262,7 @@ terminal-here with tramp files to create ssh connections."
    (cons 'urxvt          "-e")
    (cons 'gnome-terminal "-x")
    (cons 'gnome-console  "-e")
+   (cons 'ptyxis         "--")
    (cons 'alacritty      "-e")
    (cons 'xst            "-e") ; popular st fork
    (cons 'st             "-e")

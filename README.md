@@ -161,7 +161,7 @@ If you have problems just configure your terminal manually as described above.
 * Add the custom variable `terminal-here-verbose` to provide more debugging information.
 * Fix xfce terminal using the wrong name.
 * Add support for some additional terminals on Linux.
-* Add support for gnome-console (aka kgx)
+* Add support for gnome-console (aka kgx) and ptyxis
 
 
 ### 2.0
