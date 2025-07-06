@@ -42,8 +42,7 @@
 (ert-deftest linux-default-command-gnome-de ()
   (with-mock
    (stub getenv => "GNOME")
-   (mock (executable-find "gnome-terminal") => "/bin/gnome-terminal")
-   (mock (executable-find "kgx"))
+   (mock (executable-find *))
    (let ((system-type 'gnu/linux))
      (custom-reevaluate-setting 'terminal-here-terminal-command)
      (custom-reevaluate-setting 'terminal-here-linux-terminal-command)
