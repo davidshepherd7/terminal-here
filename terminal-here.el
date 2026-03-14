@@ -268,7 +268,7 @@ terminal-here with tramp files to create ssh connections."
    (cons 'alacritty      "-e")
    (cons 'xst            "-e") ; popular st fork
    (cons 'st             "-e")
-   (cons 'konsole        "-e") ; ssh seems to immediately exit with konsole
+   (cons 'konsole        "-e")
    (cons 'qterminal      "-e")
    (cons 'xterm          "-e")
    (cons 'sakura         "-e")
@@ -378,9 +378,17 @@ it was installed."
 (defun terminal-here--ssh-command (ssh-data)
   (let ((remote (car ssh-data))
         (dir (cadr ssh-data)))
+    ;; Use ${SHELL} not $SHELL to fix ssh on Konsole
+    ;;
+    ;; This bypasses a stupid hack in Konsole where it manually evaluates
+    ;; variables even if there is no shell involved, causing it to use $SHELL
+    ;; from the local machine instead of the remote. Konsole only does this
+    ;; evaluation for env vars which match `\$[A-Z]+`, so using {} prevents it.
+    ;; See
+    ;; https://github.com/KDE/konsole/blob/604f421fbb28b9d80432ee2db63463a1634b6270/src/ShellCommand.cpp#L96-L143
     (append (terminal-here--get-terminal-command "")
             (list (terminal-here--get-command-flag) "ssh" "-t" remote
-                  "cd" (shell-quote-argument dir) "&&" "exec" "$SHELL" "-"))))
+                  "cd" (shell-quote-argument dir) "&&" "exec" "${SHELL}" "-"))))
 
 (defun terminal-here--tramp-path-to-directory (dir)
   "Extract the local part of a local tramp path.
