@@ -84,6 +84,13 @@
     (should (equal (terminal-here--get-terminal-command "adir")
                    '("cmd.exe" "/C" "start" "cmd.exe")))))
 
+(ert-deftest windows-powershell-command ()
+  (let ((system-type 'windows-nt)
+        (terminal-here-windows-terminal-command 'powershell))
+    (custom-reevaluate-setting 'terminal-here-terminal-command)
+    (should (equal (terminal-here--get-terminal-command "adir")
+                   '("cmd.exe" "/C" "start" "powershell.exe" "-NoExit" "-Command" "cd $PWD")))))
+
 (ert-deftest no-terminal-for-os-found ()
   (let ((system-type 'foo))
     (custom-reevaluate-setting 'terminal-here-terminal-command)

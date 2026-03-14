@@ -137,6 +137,7 @@ setting.
 
 Common settings:
     cmd
+    powershell
 
 Usually this variable should be one of the symbols listed above.
 
@@ -244,7 +245,8 @@ buffer is not in a project."
 
    ;; Windows
    ;; From http://stackoverflow.com/a/13509208/874671
-   (cons 'cmd                 (list "cmd.exe" "/C" "start" "cmd.exe")))
+   (cons 'cmd                 (list "cmd.exe" "/C" "start" "cmd.exe"))
+   (cons 'powershell          (list "cmd.exe" "/C" "start" "powershell.exe" "-NoExit" "-Command" "cd $PWD")))
   "A table of terminal commands.
 
 The keys should be symbols, the values should be either a list of
