@@ -162,6 +162,7 @@ If you have problems just configure your terminal manually as described above.
 * Fix xfce terminal using the wrong name.
 * Add support for some additional terminals on Linux.
 * Add support for gnome-console (aka kgx) and ptyxis
+* Add support for powershell on Windows
 
 
 ### 2.0
